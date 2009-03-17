@@ -28,6 +28,7 @@
  * FBFlashBridgeListener("USERS_INFO", onUsersInfo);
  * FBFlashBridgeListener("USER_INFO", onUserInfo);
  * FBFlashBridgeListener("APP_USERS", onUserInfo);
+ *
  */
 
 var sAppURL = "";
@@ -52,7 +53,7 @@ function FBFlashBridgeInviteFriends()
 	{
         var dialog = new FB.UI.FBMLPopupDialog('Invite your friends to join', '');
         var fbml = "<fb:fbml>" + 
-        				"<fb:request-form style=\"width:630px; height:540px;\" onsubmit=\"return false;\" action=\"" + "http://stream.microsite.be/cecemel/index.html" + "\"\tmethod=\"POST\" invite=\"true\" type=\"\" content=\"I'd like to add you as a friend: " + 
+        				"<fb:request-form style=\"width:630px; height:540px;\" onsubmit=\"return false;\" action=\"" + "http://stream.microsite.be/cecemel/index.html" + "\"\tmethod=\"POST\" invite=\"true\" type=\"FlashBridge\" content=\"I'd like to add you as a friend: " + 
         					"<fb:req-choice url='http://stream.microsite.be/cecemel' label='Confirm' />\">" + 
         					"<fb:multi-friend-selector\tshowborder=\"false\" exclude_ids=\"\" actiontext=\"Invite your friends\" rows=\"5\" bypass=\"cancel\"\tshowborder=\"false\" />" + 
         				"</fb:request-form>" + 
@@ -173,6 +174,35 @@ function FBFlashBridgeShowShare(link)
 	});
 }
 
+function FBFlashBridgeSendNotification(arrUsers, sNotification)
+{
+	api.notifications_send(arrUsers, sNotification, function(result, ex)
+	{
+		FBFlashBridgeDispatcher("NOTIFICATION_SENT");
+		
+		FBFlashBridgeFlashDispatcher("onNotificationSent");
+	}); 
+}
+
+function FBFlashBridgeSendEMail(arrRecipients, sSubject, sText, sFbml)
+{
+	api.notifications_sendEmail(arrRecipients, sSubject, sText, sFbml, function(result, ex)
+	{
+		if(result)
+		{
+			FBFlashBridgeDispatcher("EMAIL_SENT");
+		
+			FBFlashBridgeFlashDispatcher("onEmailSent");
+		}
+		else
+		{
+			FBFlashBridgeDispatcher("EMAIL_SENT_FAILED_AUTH");
+		
+			FBFlashBridgeFlashDispatcher("onEmailSentFailedAuth");
+		}
+	}); 
+}
+
 //***********************************************************************************************************//
 
 function FBFlashBridgeLogOut()
@@ -196,7 +226,7 @@ function FBFlashBridgeLogIn()
 		trace("LOG IN READY");
 		
 		FBFlashBridgeLoggedIn();
-	});
+	}, true);
 }
 
 function FBFlashBridgeLoggedIn()
@@ -229,6 +259,8 @@ function FBFlashBridgeOnLoad()
 	});
 }
 
+window.onload = function() { FBFlashBridgeOnLoad(false); };
+
 //***********************************************************************************************************//	
 
 if(!("console" in window) || !("firebug" in console)) 
@@ -253,10 +285,6 @@ function inspect(obj)
 	if(console)	
 		console.dir(obj);
 }
-
-//***********************************************************************************************************//	
-
-window.onload = function() { FBFlashBridgeOnLoad(false); };
 
 //***********************************************************************************************************//
 

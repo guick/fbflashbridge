@@ -7,6 +7,9 @@ package be.wellconsidered.apis.fbbridge.events
 		public static var LOGGED_IN:String = "LOGGED_IN"; 
 		public static var LOGGED_OUT:String = "LOGGED_OUT"; 
 		public static var STATUS_SET:String = "STATUS_SET"; 
+		public static var NOTIFICATION_SENT:String = "NOTIFICATION_SENT"; 
+		public static var EMAIL_SENT:String = "EMAIL_SENT"; 
+		public static var EMAIL_SENT_FAILED_AUTH:String = "EMAIL_SENT_FAILED_AUTH"; 
 		public static var FRIENDS_LIST:String = "FRIENDS_LIST";
 		public static var USERS_INFO:String = "USERS_INFO";
 		public static var USER_INFO:String = "USER_INFO";

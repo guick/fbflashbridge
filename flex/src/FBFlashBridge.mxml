@@ -77,6 +77,11 @@
 				txtShare.enabled = isConnected;
 				txtStatus.enabled = isConnected;
 				
+				btnEmailF.enabled = isConnected;	
+				btnEmailA.enabled = isConnected;	
+				btnNotF.enabled = isConnected;	
+				btnNotA.enabled = isConnected;	
+				btnEmailPer.enabled = isConnected;	
 				btnStatus.enabled = isConnected;	
 				btnDisconnect.enabled = isConnected;
 				btnShare.enabled = isConnected;
@@ -150,6 +155,11 @@
 			private function setStatusPerm():void
 			{
 				_fbBridge.promptPermission(FBBridgePermissions.STATUS_UPDATE);
+			}
+			
+			private function setEmailPerm():void
+			{
+				_fbBridge.promptPermission(FBBridgePermissions.EMAIL);
 			}
 			
 			private function publishStory():void
@@ -241,6 +251,94 @@
 				CursorManager.removeBusyCursor();
 			}
 			
+			private function sendFriendsNotification():void
+			{
+				if(dgFriends.selectedItems.length > 0)
+				{
+					var arrUsers:Array = new Array();
+					
+					for(var i:int = 0; i < dgFriends.selectedItems.length; i++)
+					{
+						arrUsers.push(dgFriends.selectedItems[i].uid);
+					}
+					
+					_fbBridge.addEventListener(FBBridgeEvent.NOTIFICATION_SENT, onNotSent);
+					_fbBridge.sendNotification(arrUsers, "FBFlashBridge app needs your attention. (This comes from <fb:name uid='" + _fbBridge.user.uid + "' />)");
+				}
+				else
+					Alert.show("You need to select one or more friends");
+			}
+			
+			private function sendAppNotification():void
+			{
+				if(dgAppUsers.selectedItems.length > 0)
+				{
+					var arrUsers:Array = new Array();
+					
+					for(var i:int = 0; i < dgAppUsers.selectedItems.length; i++)
+					{
+						arrUsers.push(dgAppUsers.selectedItems[i].uid);
+					}
+					
+					_fbBridge.addEventListener(FBBridgeEvent.NOTIFICATION_SENT, onNotSent);
+					_fbBridge.sendNotification(arrUsers, "FBFlashBridge app needs your attention. (This comes from <fb:name uid='" + _fbBridge.user.uid + "' />)");
+				}
+				else
+					Alert.show("You need to select one or more friends");
+			}
+			
+			private function onNotSent(e:FBBridgeEvent):void
+			{
+				Alert.show("Notification has been sent");
+			}
+			
+			private function sendFriendsEmail():void
+			{
+				if(dgFriends.selectedItems.length > 0)
+				{
+					var arrUsers:Array = new Array();
+					
+					for(var i:int = 0; i < dgFriends.selectedItems.length; i++)
+					{
+						arrUsers.push(dgFriends.selectedItems[i].uid);
+					}
+					
+					_fbBridge.addEventListener(FBBridgeEvent.EMAIL_SENT, onEmailSent);
+					_fbBridge.sendEmail(arrUsers, "FBFlashBridge app", "hi user <fb:name uid='" + _fbBridge.user.uid + "' /> has sent you a message");
+				}
+				else
+					Alert.show("You need to select one or more friends");
+			}
+			
+			private function sendAppEmail():void
+			{
+				if(dgAppUsers.selectedItems.length > 0)
+				{
+					var arrUsers:Array = new Array();
+					
+					for(var i:int = 0; i < dgAppUsers.selectedItems.length; i++)
+					{
+						arrUsers.push(dgAppUsers.selectedItems[i].uid);
+					}
+					
+					_fbBridge.addEventListener(FBBridgeEvent.EMAIL_SENT_FAILED_AUTH, onEmailSentFailedAuth);
+					_fbBridge.addEventListener(FBBridgeEvent.EMAIL_SENT, onEmailSent);
+					_fbBridge.sendEmail(arrUsers, "FBFlashBridge app", "hi user <fb:name uid='" + _fbBridge.user.uid + "' /> has sent you a message");
+				}
+				else
+					Alert.show("You need to select one or more friends");
+			}
+			
+			private function onEmailSent(e:FBBridgeEvent):void
+			{
+				Alert.show("Email has been sent");
+			}
+			
+			private function onEmailSentFailedAuth(e:FBBridgeEvent):void
+			{
+				Alert.show("Email has NOT been sent, user hasn't given Email Permissions.");
+			}
+			
 		]]>
 	</mx:Script>
 	
@@ -250,19 +348,21 @@
 	
 	<mx:Button x="107" y="50" label="Disconnect" enabled="false" id="btnDisconnect" click="disconnectFromFB()" />
 	
-	<mx:TextInput x="10" y="114" id="txtStatus"  enabled="false" />
-	<mx:Button x="10" y="144" label="Set Status" id="btnStatus"  enabled="false" click="setStatus()"/>
-	<mx:Button x="103" y="144" label="First set status permissions" id="btnPermStatus" click="setStatusPerm()" enabled="false"/>
+	<mx:TextInput x="10" y="197" id="txtStatus"  enabled="false" />
+	<mx:Button x="178" y="197" label="Set Status" id="btnStatus"  enabled="false" click="setStatus()"/>
 	
-	<mx:TextInput x="10" y="195" id="txtShare" enabled="false"/>
-	<mx:Button x="10" y="225" label="Share Something" id="btnShare" enabled="false"  click="shareSomething()" />
+	<mx:Button x="10" y="114" label="Set Email Permissions" id="btnEmailPer" click="setEmailPerm()" enabled="false"/>
+	<mx:Button x="10" y="83" label="Set Status Permissions" id="btnPermStatus" click="setStatusPerm()" enabled="false"/>
 	
-	<mx:Button x="10" y="255" label="Publish Story" enabled="false" id="btnStory" click="publishStory()" />
+	<mx:TextInput x="10" y="253" id="txtShare" enabled="false"/>
+	<mx:Button x="178" y="253" label="Share Something" id="btnShare" enabled="false"  click="shareSomething()" />
 	
-	<mx:Button x="10" y="285" label="Invite Friends" id="btnInvite" enabled="false" click="inviteFriends()"/>
+	<mx:Button x="10" y="313" label="Publish Story" enabled="false" id="btnStory" click="publishStory()" />
 	
-	<mx:Button x="427" y="114" label="Get Friends of user" id="btnGetFriends" enabled="false" click="getFriends()"/>
-	<mx:DataGrid x="427" y="143" width="555" height="180" enabled="false" id="dgFriends">
+	<mx:Button x="10" y="343" label="Invite Friends" id="btnInvite" enabled="false" click="inviteFriends()"/>
+	
+	<mx:Button x="338" y="114" label="Get Friends of user" id="btnGetFriends" enabled="false" click="getFriends()"/>
+	<mx:DataGrid x="338" y="143" width="443" height="180" enabled="false" id="dgFriends" allowMultipleSelection="true">
 		<mx:columns>
 			<mx:DataGridColumn headerText="UID" dataField="uid"/>
 			<mx:DataGridColumn headerText="Name" dataField="name"/>
@@ -271,12 +371,12 @@
 		</mx:columns>
 	</mx:DataGrid>
 	
-	<mx:Image x="427" y="40" id="imgProfile" width="50" height="50"/>
-	<mx:Label x="483" y="40" width="153" id="lblName"/>
-	<mx:Label x="483" y="72" id="lblStatus" width="321"/>
+	<mx:Image x="338" y="40" id="imgProfile" width="50" height="50"/>
+	<mx:Label x="394" y="40" width="153" id="lblName"/>
+	<mx:Label x="394" y="72" id="lblStatus" width="321"/>
 	
-	<mx:Button x="427" y="351" label="Get Application Users" id="btnAppUsers" click="getAppUsers()" enabled="false"/>
-	<mx:DataGrid x="427" y="381" width="555" id="dgAppUsers">
+	<mx:Button x="338" y="351" label="Get Application Users" id="btnAppUsers" click="getAppUsers()" enabled="false"/>
+	<mx:DataGrid x="338" y="381" width="443" id="dgAppUsers" allowMultipleSelection="true">
 		<mx:columns>
 			<mx:DataGridColumn headerText="UID" dataField="uid"/>
 			<mx:DataGridColumn headerText="Name" dataField="name"/>
@@ -284,5 +384,13 @@
 			<mx:DataGridColumn headerText="Proxied Email" dataField="proxied_email"/>
 		</mx:columns>
 	</mx:DataGrid>
+	
+	<mx:Button x="10" y="409" label="Send Notification to selected friends" id="btnNotF" click="sendFriendsNotification()" enabled="false"/>
+	<mx:Button x="10" y="440" label="Send Notification to selected app users" id="btnNotA" click="sendAppNotification()" enabled="false"/>
+	
+	<mx:Button x="10" y="470" label="Send Email to selected friends" id="btnEmailF" click="sendFriendsEmail()" enabled="false"/>
+	<mx:Button x="10" y="501" label="Send Email to selected app users" id="btnEmailA" click="sendAppEmail()" enabled="false"/>
+	<mx:Text x="10" y="227" text="Share Link"/>
+	<mx:Text x="10" y="171" text="Status message"/>
 	
 </mx:Application>

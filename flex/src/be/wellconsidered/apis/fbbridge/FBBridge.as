@@ -4,7 +4,6 @@ package be.wellconsidered.apis.fbbridge
 	import be.wellconsidered.apis.fbbridge.events.FBBridgeEvent;
 	
 	import flash.events.EventDispatcher;
-	import flash.events.IEventDispatcher;
 	import flash.external.ExternalInterface;
 	import flash.utils.setTimeout;
 
@@ -35,6 +34,10 @@ package be.wellconsidered.apis.fbbridge
 			ExternalInterface.addCallback("onLoggedOut", onLoggedOut);
 			
 			ExternalInterface.addCallback("onStatusSet", onStatusSet);
+			
+			ExternalInterface.addCallback("onNotificationSent", onNotificationSent);
+			ExternalInterface.addCallback("onEmailSent", onEmailSent);
+			ExternalInterface.addCallback("onEmailSentFailedAuth", onEmailSentFailedAuth);
 			
 			ExternalInterface.addCallback("onFriendsList", onFriendsList);
 			
@@ -69,6 +72,21 @@ package be.wellconsidered.apis.fbbridge
 		private function onStatusSet():void
 		{
 			dispatchEvent(new FBBridgeEvent(FBBridgeEvent.STATUS_SET));
+		}
+		
+		private function onEmailSent():void
+		{
+			dispatchEvent(new FBBridgeEvent(FBBridgeEvent.EMAIL_SENT));
+		}
+		
+		private function onEmailSentFailedAuth():void
+		{
+			dispatchEvent(new FBBridgeEvent(FBBridgeEvent.EMAIL_SENT_FAILED_AUTH));
+		}
+		
+		private function onNotificationSent():void
+		{
+			dispatchEvent(new FBBridgeEvent(FBBridgeEvent.NOTIFICATION_SENT));
 		}
 		
 		private function onLoggedOut():void
@@ -179,6 +197,22 @@ package be.wellconsidered.apis.fbbridge
 		public function showShare(sharedLink:String):void
 		{
 			ExternalInterface.call("FBFlashBridgeShowShare", sharedLink);
+		}
+		
+		/**
+		 * sendNotification
+		 */
+		public function sendNotification(usersArr:Array, notificationMessage:String):void
+		{
+			ExternalInterface.call("FBFlashBridgeSendNotification", usersArr, notificationMessage);
+		}
+		
+		/**
+		 * sendEmail
+		 */
+		public function sendEmail(recipientsArr:Array, subject:String, text:String, fbml:String = ""):void
+		{
+			ExternalInterface.call("FBFlashBridgeSendEMail", recipientsArr, subject, text, fbml);
 		}
 		
 		/**
