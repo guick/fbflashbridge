@@ -20,7 +20,7 @@
 			
 			private function init():void
 			{
-				setTimeout(initBridge, 5000);
+				setTimeout(initBridge, 3000);
 				
 				btnConnect.alpha = .5;
 				btnConnect.enabled = false;
@@ -36,6 +36,8 @@
 				_fbBridge.addEventListener(FBBridgeEvent.LOGGED_IN, onLoggedIn);
 				_fbBridge.addEventListener(FBBridgeEvent.LOGGED_OUT, onLoggedOut);
 				_fbBridge.addEventListener(FBBridgeEvent.STATUS_SET, onStatusSet);
+				
+				_fbBridge.init();
 			}
 			
 			private function onLoggedIn(e:FBBridgeEvent):void
@@ -82,6 +84,7 @@
 				btnNotF.enabled = isConnected;	
 				btnNotA.enabled = isConnected;	
 				btnEmailPer.enabled = isConnected;	
+				btnGetStatus.enabled = isConnected;	
 				btnStatus.enabled = isConnected;	
 				btnDisconnect.enabled = isConnected;
 				btnShare.enabled = isConnected;
@@ -125,7 +128,7 @@
 			{
 				trace("Invite Friends");
 				
-				_fbBridge.inviteFriends();
+				_fbBridge.inviteFriends("Invite your friends!", "Invite your friends and earn extra credits.", "Come join me at FBFlashBridge and have some fun!");
 			}
 			
 			private function setStatus():void
@@ -140,6 +143,21 @@
 				trace("Status is set");
 				
 				Alert.show("Status is set!", "Succeeded");
+			}
+			
+			private function getCurrentStatus():void
+			{
+				_fbBridge.addEventListener(FBBridgeEvent.CURRENT_STATUS, onCurrentStatus);
+				_fbBridge.getCurrentStatus(_fbBridge.user.uid, 100);	
+			}
+			
+			private function onCurrentStatus(e:FBBridgeEvent):void
+			{
+				var arrStatus:Array = e.data as Array;
+				
+				Alert.show("Current status", arrStatus[0]);
+				
+				trace(arrStatus);
 			}
 			
 			private function shareSomething():void
@@ -303,6 +321,7 @@
 						arrUsers.push(dgFriends.selectedItems[i].uid);
 					}
 					
+					_fbBridge.addEventListener(FBBridgeEvent.EMAIL_SENT_FAILED_AUTH, onEmailSentFailedAuth);
 					_fbBridge.addEventListener(FBBridgeEvent.EMAIL_SENT, onEmailSent);
 					_fbBridge.sendEmail(arrUsers, "FBFlashBridge app", "hi user <fb:name uid='" + _fbBridge.user.uid + "' /> has sent you a message");
 				}
@@ -354,12 +373,12 @@
 	<mx:Button x="10" y="114" label="Set Email Permissions" id="btnEmailPer" click="setEmailPerm()" enabled="false"/>
 	<mx:Button x="10" y="83" label="Set Status Permissions" id="btnPermStatus" click="setStatusPerm()" enabled="false"/>
 	
-	<mx:TextInput x="10" y="253" id="txtShare" enabled="false"/>
-	<mx:Button x="178" y="253" label="Share Something" id="btnShare" enabled="false"  click="shareSomething()" />
+	<mx:TextInput x="10" y="285" id="txtShare" enabled="false"/>
+	<mx:Button x="178" y="285" label="Share Something" id="btnShare" enabled="false"  click="shareSomething()" />
 	
-	<mx:Button x="10" y="313" label="Publish Story" enabled="false" id="btnStory" click="publishStory()" />
+	<mx:Button x="10" y="330" label="Publish Story" enabled="false" id="btnStory" click="publishStory()" />
 	
-	<mx:Button x="10" y="343" label="Invite Friends" id="btnInvite" enabled="false" click="inviteFriends()"/>
+	<mx:Button x="10" y="360" label="Invite Friends" id="btnInvite" enabled="false" click="inviteFriends()"/>
 	
 	<mx:Button x="338" y="114" label="Get Friends of user" id="btnGetFriends" enabled="false" click="getFriends()"/>
 	<mx:DataGrid x="338" y="143" width="443" height="180" enabled="false" id="dgFriends" allowMultipleSelection="true">
@@ -390,7 +409,8 @@
 	
 	<mx:Button x="10" y="470" label="Send Email to selected friends" id="btnEmailF" click="sendFriendsEmail()" enabled="false"/>
 	<mx:Button x="10" y="501" label="Send Email to selected app users" id="btnEmailA" click="sendAppEmail()" enabled="false"/>
-	<mx:Text x="10" y="227" text="Share Link"/>
+	<mx:Text x="10" y="259" text="Share Link"/>
 	<mx:Text x="10" y="171" text="Status message"/>
+	<mx:Button x="178" y="227" label="Get Current Status" enabled="false" id="btnGetStatus" click="getCurrentStatus()"/>
 	
 </mx:Application>

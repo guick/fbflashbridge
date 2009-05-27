@@ -31,6 +31,7 @@
  *
  */
 
+var sAppName = "";
 var sAppURL = "";
 var sAppKey = "";
 
@@ -44,24 +45,38 @@ var isLoggedIn = false;
 
 //***********************************************************************************************************//
 
-function FBFlashBridgeInviteFriends()
+function FBFlashBridgeInviteFriends(title, actionTitle, messageCopy)
 {
 	trace("INVITE FRIENDS");
 
-	// FB.Connect.inviteConnectUsers();
+	// FB.Connect.inviteConnectUsers(); doesn't work
 	FB.ensureInit(function() 
 	{
-        var dialog = new FB.UI.FBMLPopupDialog('Invite your friends to join', '');
+        var dialog = new FB.UI.FBMLPopupDialog(title, "");
         var fbml = "<fb:fbml>" + 
-        				"<fb:request-form style=\"width:630px; height:540px;\" onsubmit=\"return false;\" action=\"" + "http://stream.microsite.be/cecemel/index.html" + "\"\tmethod=\"POST\" invite=\"true\" type=\"FlashBridge\" content=\"I'd like to add you as a friend: " + 
-        					"<fb:req-choice url='http://stream.microsite.be/cecemel' label='Confirm' />\">" + 
-        					"<fb:multi-friend-selector\tshowborder=\"false\" exclude_ids=\"\" actiontext=\"Invite your friends\" rows=\"5\" bypass=\"cancel\"\tshowborder=\"false\" />" + 
+        				"<fb:request-form " + 
+        							"method=\"GET\" " +
+        							"action=\"" + "http://stream.microsite.be/cecemel/index.html" + "\" " + 
+        							"invite=\"false\" " + 
+      								"type=\"" + sAppName + "\" " + 
+       								"content=\"" + messageCopy + " " +        										
+    	   									"<fb:req-choice url='http://stream.microsite.be/cecemel' label='Confirm' />\"" + 
+    	   							">" + 
+  							"<fb:multi-friend-selector showborder=\"false\" exclude_ids=\"\" actiontext=\"" + actionTitle + "\" rows=\"5\" bypass=\"cancel\" showborder=\"true\" />" + 
         				"</fb:request-form>" + 
         			"</fb:fbml>";
-        
+        /*
+        var fbml = "<fb:fbml>" + 
+        				"<fb:iframe " +  
+        						"src=\"http://stream.microsite.be/cecemel/assets/popup/invite.html?fb_force_mode=fbml&sAppName=" + sAppName + "&actionTitle=" + actionTitle + "&messageCopy=" + messageCopy + "\"" + 
+        						"smartsize=\"true\" " + 
+        						">" +  
+        				"</fb:iframe>" + 
+        			"</fb:fbml>";
+        */
         dialog.setFBMLContent(fbml);
         dialog.setContentWidth(630); 
-        dialog.setContentHeight(540);
+        dialog.setContentHeight(500);
         
         dialog.show();
     });
@@ -78,6 +93,20 @@ function FBFlashBridgeSetStatus(status)
 		FBFlashBridgeDispatcher("STATUS_SET");
 		
 		FBFlashBridgeFlashDispatcher("onStatusSet");
+	});
+}
+
+function FBFlashBridgeGetCurrentStatus(userId, limit)
+{
+	api.status_get(userId, limit, function(result, ex)
+	{
+		trace(result);
+		
+		trace("CURRENT_STATUS");
+		
+		FBFlashBridgeDispatcher("CURRENT_STATUS");
+		
+		FBFlashBridgeFlashDispatcher("onCurrentStatus", result);
 	});
 }
 
@@ -309,8 +338,9 @@ function FBFlashBridgeFlashDispatcher(func)
 	}
 }
 
-function FBFlashBridgeInit(appKey, appURL, flashObj)
+function FBFlashBridgeInit(appName, appKey, appURL, flashObj)
 {
+	sAppName = appName;
 	sAppKey = appKey;
 	sAppURL = appURL;
 
