@@ -17,6 +17,7 @@
  * FBFlashBridgeShowShare
  * FBFlashBridgeUserInfo
  * FBFlashBridgeInviteFriends
+ * FBFlashBridgeGetStream
  *
  *
  * Custom event listening
@@ -28,6 +29,7 @@
  * FBFlashBridgeListener("USERS_INFO", onUsersInfo);
  * FBFlashBridgeListener("USER_INFO", onUserInfo);
  * FBFlashBridgeListener("APP_USERS", onUserInfo);
+ * FBFlashBridgeListener("STREAM_GET", onStreamGet);
  *
  */
 
@@ -176,6 +178,22 @@ function FBFlashBridgeGetAppUsers()
 		FBFlashBridgeDispatcher("APP_USERS");
 		
 		FBFlashBridgeFlashDispatcher("onAppUsers", usersResult);
+	});
+}
+
+function FBFlashBridgeGetStream(userId)
+{
+	trace("GET STREAM OF " + userId);
+	
+	api.stream_get(userId, '', '', '', '', function(result) 
+	{
+		trace("STREAM_GET");
+
+		trace(result.posts[0]);
+		
+		FBFlashBridgeDispatcher("STREAM_GET");
+		
+		FBFlashBridgeFlashDispatcher("onStreamGet", result);
 	});
 }
 

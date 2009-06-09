@@ -20,7 +20,7 @@
 			
 			private function init():void
 			{
-				setTimeout(initBridge, 3000);
+				setTimeout(initBridge, 2000);
 				
 				btnConnect.alpha = .5;
 				btnConnect.enabled = false;
@@ -79,20 +79,21 @@
 				txtShare.enabled = isConnected;
 				txtStatus.enabled = isConnected;
 				
+				btnGetStream.enabled = isConnected;	
 				btnEmailF.enabled = isConnected;	
 				btnEmailA.enabled = isConnected;	
 				btnNotF.enabled = isConnected;	
-				btnNotA.enabled = isConnected;	
-				btnEmailPer.enabled = isConnected;	
+				btnNotA.enabled = isConnected;
 				btnGetStatus.enabled = isConnected;	
 				btnStatus.enabled = isConnected;	
 				btnDisconnect.enabled = isConnected;
 				btnShare.enabled = isConnected;
 				btnStory.enabled = isConnected;
 				btnGetFriends.enabled = isConnected;
-				btnPermStatus.enabled = isConnected;
+				btnPerm.enabled = isConnected;
 				btnAppUsers.enabled = isConnected;
 				btnInvite.enabled = isConnected;
+				dPermissions.enabled = isConnected;
 				
 				dgFriends.enabled = isConnected;
 				
@@ -170,14 +171,10 @@
 					Alert.show("You need to specify a link to share", "Warning!");
 			}
 			
-			private function setStatusPerm():void
+			private function setPerm():void
 			{
-				_fbBridge.promptPermission(FBBridgePermissions.STATUS_UPDATE);
-			}
-			
-			private function setEmailPerm():void
-			{
-				_fbBridge.promptPermission(FBBridgePermissions.EMAIL);
+				if(dPermissions.selectedLabel.length > 0)
+					_fbBridge.promptPermission(FBBridgePermissions[dPermissions.selectedLabel]);
 			}
 			
 			private function publishStory():void
@@ -358,6 +355,21 @@
 				Alert.show("Email has NOT been sent, user hasn't given Email Permissions.");
 			}
 			
+			private function getStream():void
+			{
+				trace("Get Stream");
+				
+				_fbBridge.addEventListener(FBBridgeEvent.STREAM_GET, onStreamGet, false, 0, true);
+				_fbBridge.getStream(_fbBridge.user.uid);
+			}
+			
+			private function onStreamGet(e:FBBridgeEvent):void
+			{
+				trace("onStreamGet");
+				
+				Alert.show(String((e.data as Object).posts[0].message));
+			}
+			
 		]]>
 	</mx:Script>
 	
@@ -367,18 +379,16 @@
 	
 	<mx:Button x="107" y="50" label="Disconnect" enabled="false" id="btnDisconnect" click="disconnectFromFB()" />
 	
-	<mx:TextInput x="10" y="197" id="txtStatus"  enabled="false" />
-	<mx:Button x="178" y="197" label="Set Status" id="btnStatus"  enabled="false" click="setStatus()"/>
+	<mx:TextInput x="10" y="140" id="txtStatus"  enabled="false" />
+	<mx:Button x="178" y="140" label="Set Status" id="btnStatus"  enabled="false" click="setStatus()"/>
+	<mx:Button x="190" y="80" label="Ask Permissions" id="btnPerm" click="setPerm()" enabled="false"/>
 	
-	<mx:Button x="10" y="114" label="Set Email Permissions" id="btnEmailPer" click="setEmailPerm()" enabled="false"/>
-	<mx:Button x="10" y="83" label="Set Status Permissions" id="btnPermStatus" click="setStatusPerm()" enabled="false"/>
+	<mx:TextInput x="10" y="228" id="txtShare" enabled="false"/>
+	<mx:Button x="178" y="228" label="Share Something" id="btnShare" enabled="false"  click="shareSomething()" />
 	
-	<mx:TextInput x="10" y="285" id="txtShare" enabled="false"/>
-	<mx:Button x="178" y="285" label="Share Something" id="btnShare" enabled="false"  click="shareSomething()" />
+	<mx:Button x="10" y="273" label="Publish Story" enabled="false" id="btnStory" click="publishStory()" />
 	
-	<mx:Button x="10" y="330" label="Publish Story" enabled="false" id="btnStory" click="publishStory()" />
-	
-	<mx:Button x="10" y="360" label="Invite Friends" id="btnInvite" enabled="false" click="inviteFriends()"/>
+	<mx:Button x="10" y="303" label="Invite Friends" id="btnInvite" enabled="false" click="inviteFriends()"/>
 	
 	<mx:Button x="338" y="114" label="Get Friends of user" id="btnGetFriends" enabled="false" click="getFriends()"/>
 	<mx:DataGrid x="338" y="143" width="443" height="180" enabled="false" id="dgFriends" allowMultipleSelection="true">
@@ -404,13 +414,34 @@
 		</mx:columns>
 	</mx:DataGrid>
 	
-	<mx:Button x="10" y="409" label="Send Notification to selected friends" id="btnNotF" click="sendFriendsNotification()" enabled="false"/>
-	<mx:Button x="10" y="440" label="Send Notification to selected app users" id="btnNotA" click="sendAppNotification()" enabled="false"/>
+	<mx:Button x="10" y="352" label="Send Notification to selected friends" id="btnNotF" click="sendFriendsNotification()" enabled="false"/>
+	<mx:Button x="10" y="383" label="Send Notification to selected app users" id="btnNotA" click="sendAppNotification()" enabled="false"/>
 	
-	<mx:Button x="10" y="470" label="Send Email to selected friends" id="btnEmailF" click="sendFriendsEmail()" enabled="false"/>
-	<mx:Button x="10" y="501" label="Send Email to selected app users" id="btnEmailA" click="sendAppEmail()" enabled="false"/>
-	<mx:Text x="10" y="259" text="Share Link"/>
-	<mx:Text x="10" y="171" text="Status message"/>
-	<mx:Button x="178" y="227" label="Get Current Status" enabled="false" id="btnGetStatus" click="getCurrentStatus()"/>
+	<mx:Button x="10" y="413" label="Send Email to selected friends" id="btnEmailF" click="sendFriendsEmail()" enabled="false"/>
+	<mx:Button x="10" y="444" label="Send Email to selected app users" id="btnEmailA" click="sendAppEmail()" enabled="false"/>
+	<mx:Text x="10" y="202" text="Share Link"/>
+	<mx:Text x="10" y="114" text="Status message"/>
+	<mx:Button x="178" y="170" label="Get Current Status" enabled="false" id="btnGetStatus" click="getCurrentStatus()"/>
+	<mx:ComboBox x="10" y="80" id="dPermissions" enabled="false">
+		<mx:dataProvider>
+          <mx:Array>
+             <mx:String></mx:String>
+             <mx:String>EMAIL</mx:String>
+             <mx:String>OFFLINE_ACCESS</mx:String>
+             <mx:String>STATUS_UPDATE</mx:String>
+             <mx:String>STREAM_PUBLISH</mx:String>
+             <mx:String>STREAM_READ</mx:String>
+             <mx:String>PHOTO_UPLOAD</mx:String>
+             <mx:String>VIDEO_UPLOAD</mx:String>
+             <mx:String>SMS</mx:String>
+             <mx:String>SHARE_ITEM</mx:String>
+             <mx:String>SMS</mx:String>
+             <mx:String>RSVP_EVENT</mx:String>
+             <mx:String>CREATE_EVENT</mx:String>
+             <mx:String>CREATE_LISTING</mx:String>
+           </mx:Array>
+       </mx:dataProvider>
+	</mx:ComboBox>
+	<mx:Button x="10" y="501" label="Get last item in Stream" id="btnGetStream" click="getStream()" enabled="false"/>
 	
 </mx:Application>
