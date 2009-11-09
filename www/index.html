@@ -3,37 +3,25 @@
 
 	Pieter Michels - 2009
 	
-	IMPORTANT
-	
-		-	wmode = transparent
-		-	jQuery needed for event listening
-		-	load sequence: 
-				1. jQuery
-				2. fbFlashBridge
-				3. Flash embedding
-				4. in body the Featureloader.js.php
-				5. document ready (jQuery) FBFlashBridgeInit
-		-	FBFlashBridgeInit( api key , xd_receiver url , reference to flash object )
-
  -->
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:fb="http://www.facebook.com/2008/fbml">
 	<head>
-		<title>Flash Bridge for Facebook Connect</title>
-		
-		<script src="assets/js/jquery-1.3.2.min.js" type="text/javascript"></script>
-		
-		<script src="assets/js/fbFlashBridge.js" type="text/javascript"></script>
+		<title>Flash Bridge for Facebook Connect - Pieter Michels</title>
 		
 		<link rel="stylesheet" href="assets/css/style.css" media="all" />
 		
-		<script type="text/javascript" src="assets/js/swfobject.js"></script>
+		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
+		
+		<script src="assets/js/FBFlashBridge-0.1.js" type="text/javascript"></script>
+		
+		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/swfobject/2/swfobject.js"></script>
 		<script type="text/javascript">
 			
 			var flashvars = { };
-			var params = {allowFullScreen : true, allowScriptAccess: "always", wmode: "window"};
+			var params = {allowFullScreen : true, allowScriptAccess: "always", wmode: "transparent"};
 			var attributes = {id: "flash_flash"};
 			
-			swfobject.embedSWF("assets/swf/FBFlashBridge.swf", "flash_alternative", "100%", "545", "9.0.0", "assets/swf/playerProductInstall.swf", flashvars, params, attributes);
+			// swfobject.embedSWF("assets/swf/FBFlashBridge.swf", "flash_alternative", "100%", "545", "9.0.0", "assets/swf/playerProductInstall.swf", flashvars, params, attributes);
 			
 		</script>
 		
@@ -46,25 +34,65 @@
 		
 		
 		<div id="flash_alternative">
-		
-			<!-- CONNECT -->
-			<a href="#" onclick="FBFlashBridgeLogIn(); return false;" >Connect</a><br />
-			<!-- LOGOUT -->
-			<a href="#" onclick="FBFlashBridgeLogout(); return false;">Logout of Facebook</a><br />
-			<!-- PERMISSIONS -->
-			<a href="#" onclick="FBFlashBridgePromptPermission('offline_access'); return false;">Ask Offline Permissions</a><br />
-			<!-- PERMISSIONS -->
-			<a href="#" onclick="FBFlashBridgePromptPermission('status_update'); return false;">Ask Status Permissions</a><br />
-			<!-- SET EMAIL PERMISSIONS -->
-			<a href="#" onclick="FBFlashBridgePromptPermission('email'); return false;">Receive Email Updates</a><br />
-			<!-- POST A FEED -->
-			<a href="#" onclick="FBFlashBridgePublishFeedStory();">Post Feed</a><br />
-			<!-- SET STATUS -->
-			<a href="#" onclick="FBFlashBridgeSetStatus();">Set Status</a><br />
-			<!-- GET ALL FRIENDS -->
-			<a href="#" onclick="FBFlashBridgeGetFriendsList();">Get Friends</a>
-	
-			<ul id="friendsinfolist"></ul>
+			<a href="javascript:_fbFlashBridge.login();">Log In</a>
+			
+			<br /><br />
+			
+			<a href="javascript:_fbFlashBridge.logout();">Log Out</a>
+			
+			<br /><br />
+			
+			<a href="javascript:_fbFlashBridge.askPermissions(prompt('Enter permissions (comma separated)', 'read_stream, email'));">Ask Permissions</a>
+			
+			<br /><br />
+			
+			<a href="javascript:_fbFlashBridge.publish('FBFlashBridge');">Set Status</a>
+			
+			<br /><br />
+			
+			<a href="javascript:_fbFlashBridge.publish('FBFlashBridge', {}, null, null, 'What are you going to say?');">Publish Story</a>
+			
+			<br /><br />
+			
+			<a href="javascript:_fbFlashBridge.getStream(null);">Get Stream of Logged In User</a>
+			
+			<br /><br />
+			
+			<a href="javascript:_fbFlashBridge.getStream(prompt('Enter uid', ''));">Get Stream of uid</a>
+			
+			<br /><br />
+			
+			<a href="javascript:_fbFlashBridge.getStreamComments(prompt('Enter post_id', '531225411_175985616729'));">Get Stream Comments</a>
+			
+			<br /><br />
+			
+			<a href="javascript:_fbFlashBridge.getFriends();">Get Friends</a>
+			
+			<br /><br />
+			
+			<a href="javascript:_fbFlashBridge.getAppUsers();">Get App Users</a>
+			
+			<br /><br />
+			
+			<a href="javascript:_fbFlashBridge.getUsersInfo(prompt('Enter comma separated list of uid', '1717796132, 100000123296201, 100000160539135, 100000449340953'));">Get Users Info</a>
+			
+			<br /><br />
+			
+			<a href="javascript:_fbFlashBridge.getUserInfo(['uid', 'pic_square', 'first_name', 'last_name', 'about_me', 'sex', 'name', 'proxied_email']);">Get User info of logged in user</a>
+			
+			<br /><br />
+
+			<a href="javascript:_fbFlashBridge.sendEmail(prompt('Array of ids', '627461028, 1717796132, 100000123296201, 100000160539135, 100000449340953'), prompt('Your subject', 'Test subject'), prompt('Your Message', 'Test message'));">Send E-mail</a>
+			
+			<br /><br />
+			
+			<a href="javascript:_fbFlashBridge.sendNotification(prompt('Array of ids', '627461028, 1717796132, 100000123296201, 100000160539135, 100000449340953'), prompt('Your notification message', 'Test notification'));">Send notification</a>
+			
+			<br /><br />
+			
+			<a href="javascript:_fbFlashBridge.getNotifications();">Get Notifications of logged in user</a>
+			
+			<br /><br />
 			
 		</div>
 		
@@ -73,12 +101,26 @@
 		
 		<script type="text/javascript">
 
+			var _fbFlashBridge;
+
 			$(document).ready(function() {
 				setTimeout(delayedFBFlashBridgeInit, 500);
 			});
 			
 			function delayedFBFlashBridgeInit() {
-				FBFlashBridgeInit("FBFlashBridge", "56299d47ded461a74afa8a03ab248414", "http://stream.microsite.be/cecemel/xd_receiver.htm", swfobject.getObjectById("flash_flash"));
+			
+				_fbFlashBridge = new FBFlashBridge("FBFlashBridge", "ab00ea694dbb0fcf4f1b23131678cd4a", "http://fbflashbridge.wellconsidered.be/xd_receiver.htm", swfobject.getObjectById("flash_flash"));
+				
+				_fbFlashBridge.init();
+				
+				_fbFlashBridge.addEventListener(_fbFlashBridge.LOGGED_IN, function(){
+					trace(_fbFlashBridge.isLoggedIn());
+				});
+				
+				_fbFlashBridge.addEventListener(_fbFlashBridge.LOGGED_OUT, function(){
+					trace("Logged Out (" + _fbFlashBridge.isLoggedIn() + ")");
+				});
+				
 			}
 
 		</script>

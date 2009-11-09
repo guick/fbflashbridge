@@ -1,239 +1,483 @@
-function FBFlashBridge() {
-
-	var sAppName = "";
-	var sAppURL = "";
-	var sAppKey = "";
-	
-	var api;
-	var friendResult;
-	var userResult;
-	var usersResult;
-	var oFlash = null;
-	var isFlashReady = false;
-	var isLoggedIn = false;
-
-	
-
-}
-
 /*
  * fbFlashBridge - Facebook Connect Flash Bridge
  * 
  * Copyright (c) 2009 Pieter Michels
  *
- * ---------------------------------------------
- *
- * Custom javascript calls
- * 
- * FBFlashBridgeLogIn
- * FBFlashBridgeLogOut
- * FBFlashBridgeSetStatus
- * FBFlashBridgeGetCurrentStatus
- * FBFlashBridgeGetFriendsList
- * FBFlashBridgeGetUsersInfo
- * FBFlashBridgePromptPermission
- * FBFlashBridgePublishFeedStory
- * FBFlashBridgeShowShare
- * FBFlashBridgeUserInfo
- * FBFlashBridgeInviteFriends
- * FBFlashBridgeGetStream
- * FBFlashBridgeGetAppUsers
- * FBFlashBridgeSendNotification
- * FBFlashBridgeSendEMail
- * FBFlashBridgeGetAlbums
- * FBFlashBridgeGetPhotosInAlbum
- * FBFlashBridgeCreateAlbum
- * FBFlashBridgeGetStreamComments
- *
- *
- * Custom event listening
- *
- * FBFlashBridgeListener("LOGGED_IN", onLoggedIn); 
- * FBFlashBridgeListener("LOGGED_OUT", onLoggedOut); 
- * FBFlashBridgeListener("STATUS_SET", onStatusSet); 
- * FBFlashBridgeListener("FRIENDS_LIST", onFriendsList); 
- * FBFlashBridgeListener("USERS_INFO", onUsersInfo);
- * FBFlashBridgeListener("USER_INFO", onUserInfo);
- * FBFlashBridgeListener("APP_USERS", onUserInfo);
- * FBFlashBridgeListener("STREAM_GET", onStreamGet);
- * ALBUMS_GET
- * PHOTOS_ALBUM_GET
- * ALBUM_CREATE
- * STREAM_COMMENTS_GET
- *
  */
-
-var sAppName = "";
-var sAppURL = "";
-var sAppKey = "";
-
-var api;
-var friendResult;
-var userResult;
-var usersResult;
-var oFlash = null;
-var isFlashReady = false;
-var isLoggedIn = false;
-
-//***********************************************************************************************************//
-
-function FBFlashBridgeInviteFriends(title, actionTitle, messageCopy) {
-	trace("INVITE FRIENDS");
-
-	// FB.Connect.inviteConnectUsers(); doesn't work
-	FB.ensureInit(function()  {
-        var dialog = new FB.UI.FBMLPopupDialog(title, "");
-        var fbml = "<fb:fbml>" + 
-        				"<fb:request-form " + 
-        							"method=\"GET\" " +
-        							"action=\"" + "http://stream.microsite.be/cecemel/index.html" + "\" " + 
-        							"invite=\"false\" " + 
-      								"type=\"" + sAppName + "\" " + 
-       								"content=\"" + messageCopy + " " +        										
-    	   									"<fb:req-choice url='http://stream.microsite.be/cecemel' label='Confirm' />\"" + 
-    	   							">" + 
-  							"<fb:multi-friend-selector showborder=\"false\" exclude_ids=\"\" actiontext=\"" + actionTitle + "\" rows=\"5\" bypass=\"cancel\" showborder=\"true\" />" + 
-        				"</fb:request-form>" + 
-        			"</fb:fbml>";
-        /*
-        var fbml = "<fb:fbml>" + 
-        				"<fb:iframe " +  
-        						"src=\"http://stream.microsite.be/cecemel/assets/popup/invite.html?fb_force_mode=fbml&sAppName=" + sAppName + "&actionTitle=" + actionTitle + "&messageCopy=" + messageCopy + "\"" + 
-        						"smartsize=\"true\" " + 
-        						">" +  
-        				"</fb:iframe>" + 
-        			"</fb:fbml>";
-        */
-        dialog.setFBMLContent(fbml);
-        dialog.setContentWidth(630); 
-        dialog.setContentHeight(500);
-        
-        dialog.show();
-    });
-}
-
-//***********************************************************************************************************//
-
-function FBFlashBridgeSetStatus(status) {
-	trace("SETTING STATUS (" + status + ")");
-
-	api.users_setStatus(status, false, false, function() {
-		trace("STATUS_SET");
-		
-		FBFlashBridgeDispatcher("STATUS_SET");
-		
-		FBFlashBridgeFlashDispatcher("onStatusSet");
-	});
-}
-
-function FBFlashBridgeGetCurrentStatus(userId, limit) {
-	api.status_get(userId, limit, function(result, ex) {
-		trace(result);
-		
-		trace("CURRENT_STATUS");
-		
-		FBFlashBridgeDispatcher("CURRENT_STATUS");
-		
-		FBFlashBridgeFlashDispatcher("onCurrentStatus", result);
-	});
-}
-
-//***********************************************************************************************************//
-
-function FBFlashBridgeUserInfo(userId, arrProfileData) {
-	trace("GETTING USER INFO OF LOGGED IN USER OR USER WITH GIVEN UID");
-
-	// ["timezone", "status", "sex", "proxied_email", "profile_url", "pic_square_with_logo", "pic_square", "pic_small_with_logo", "pic_small", "pic_big_with_logo", "pic_big", "pic_with_logo", "pic", "name", "first_name", "last_name", "is_app_user", "hometown_location", "birthday", "about_me", "uid"]
+ 
+function FBFlashBridge(appName, appKey, appURL, flashObject) {
 	
-	api.users_getInfo([userId > 0 ? userId : api._session.uid], arrProfileData, function(result, ex) {	
-		userResult = result[0];
-
-		trace("USER_INFO");
+	// Constructor Variables
+	var _sAppName = appName;
+	var _sAppURL = appURL;
+	var _sAppKey = appKey;
+	var _oFlash = flashObject;
+	
+	// Static (Public) Variables
+	this.LOGGED_IN = "LOGGED_IN";
+	this.LOGGED_OUT = "LOGGED_OUT";
+	
+	// this.CURRENT_STATUS = "CURRENT_STATUS";
+	// this.STATUS_SET = "STATUS_SET";
+	
+	this.STREAM_GET = "STREAM_GET";
+	this.STREAM_COMMENTS_GET = "STREAM_COMMENTS_GET";
+	
+	this.PERMISSIONS_SET = "PERMISSIONS_SET";
+	
+	this.FRIENDS_GET = "FRIENDS_GET";
+	this.APP_USERS = "APP_USERS";
+	
+	this.USER_INFO = "USER_INFO";
+	this.USERS_INFO = "USERS_INFO";
+	
+	this.EMAIL_SENT = "EMAIL_SENT";
+	this.NOTIFICATION_SENT = "NOTIFICATION_SENT";
+	this.NOTIFICATIONS_GET = "NOTIFICATIONS_GET";
+	
+	// Private Variables
+	var _s = this;
+	
+	var _api;
+	
+	var _friendResult;
+	var _userResult;
+	var _usersResult;
+	
+	var _isLoggedIn = false;
+	var _isFlashReady = false;
+	
+	/**
+	 * Initialize class
+	 * 
+	 * Private
+	 */
+	function init() {
+		trace("Init FBFlashBridge");
 		
-		FBFlashBridgeDispatcher("USER_INFO");
+		FB.init(_sAppKey, _sAppURL);
 		
-		FBFlashBridgeFlashDispatcher("onUserInfo", userResult);
-	});
-}
-
-function FBFlashBridgeGetUsersInfo(arrUsers, arrProfileData) {
-	api.users_getInfo(arrUsers, arrProfileData, function(result, ex) {	
-		usersResult = result;
-
-		trace("USERS_INFO");
-		
-		if(!$.isArray(usersResult))
-			usersResult = [];
-		
-		FBFlashBridgeDispatcher("USERS_INFO");
-		
-		FBFlashBridgeFlashDispatcher("onUsersInfo", usersResult);
-	});
-}
-
-//***********************************************************************************************************//
-
-function FBFlashBridgeGetFriendsList() {
-	api.friends_get(null, function(result, ex) {					
-		friendResult = result;
-		
-		trace("FRIENDS_LIST");
-		
-		if(!$.isArray(friendResult))
-			friendResult = [];
-		
-		FBFlashBridgeDispatcher("FRIENDS_LIST");
-		
-		FBFlashBridgeFlashDispatcher("onFriendsList", friendResult);
-	});
-}
-
-function FBFlashBridgeGetAppUsers() {
-	api.friends_getAppUsers(function(result, ex) {					
-		usersResult = result;
-		
-		trace("APP_USERS");
-		
-		if(!$.isArray(usersResult))
-			usersResult = [];
+		FB.ensureInit(function() {
+			FB.Facebook.get_sessionState().waitUntilReady(function(session) {
+				inspect(session);
 			
-		FBFlashBridgeDispatcher("APP_USERS");
+				if(session)
+					onLoggedIn();
+			});
+		})
+	}
+	
+	//*********************************************************//
+	
+	/**
+	 * Log In
+	 *
+	 * Public
+	 */
+	function login() {
+		trace("Login");
 		
-		FBFlashBridgeFlashDispatcher("onAppUsers", usersResult);
-	});
+		FB.Connect.requireSession(function() {
+			trace("LOG IN READY");
+			
+			onLoggedIn();
+		}, true);	
+	}
+	
+		function onLoggedIn() {
+			trace("onLoggedIn");
+					
+			_api = FB.Facebook.apiClient;
+		
+			if(!_isLoggedIn) {
+				_isLoggedIn = true;
+	
+				dispatchEvent(_s.LOGGED_IN);
+				dispatchFlashEvent("onLoggedIn", _api._session);
+			}
+		}
+	
+	/**
+	 * Log Out
+	 *
+	 * Public
+	 */
+	function logout() {
+		trace("Log Out");
+		
+		FB.Connect.logout(function() { 
+			trace(_s.LOGGED_OUT);
+			
+			_isLoggedIn = false;
+			
+			dispatchEvent(_s.LOGGED_OUT);
+			dispatchFlashEvent("onLoggedOut");
+		});	
+	}
+	
+	/**
+	 * Is user logged in?
+	 *
+	 * Public
+	 */
+	function isLoggedIn() {
+		return _isLoggedIn;
+	}
+	
+	//*********************************************************//
+	
+	/**
+	 * Ask for permissions
+	 *
+	 * Public
+	 */
+	function askPermissions(permissions) {
+		trace("Ask Permissions: " + permissions);
+		
+		FB.ensureInit(function() {
+	    	FB.Connect.showPermissionDialog(permissions, function(){
+	    		trace(_s.PERMISSIONS_SET);
+	    		
+	    		dispatchEvent(_s.PERMISSIONS_SET);
+				dispatchFlashEvent("onPermissionsSet");
+	    	});
+		});
+	}
+	
+	/**
+	 * Get all users of the application
+	 *
+	 * Public
+	 */
+	function getAppUsers() {
+		trace("Get Users of this application");
+		
+		_api.friends_getAppUsers(function(result, ex) {					
+			trace(_s.APP_USERS);
+			
+			trace(result);
+			inspect(result);
+			
+			if(!$.isArray(result))
+				result = [];
+				
+			dispatchEvent(_s.APP_USERS);
+			dispatchFlashEvent("onAppUsers", result);
+		});		
+	}
+	
+	/**
+	 * Get friends of the logged in user
+	 *
+	 * Public
+	 */
+	function getFriends() {
+		trace("Get Friends of logged in user");
+		
+		_api.friends_get(null, function(result, ex) {					
+			trace(_s.FRIENDS_GET);
+			
+			trace(result);
+			inspect(result);
+			
+			if(!$.isArray(result))
+				result = [];
+			
+			dispatchEvent(_s.FRIENDS_GET);
+			dispatchFlashEvent("onFriendsList", result);
+		});		
+	}
+	
+	/**
+	 * Get info of array of users (can contain 1 element)
+	 *
+	 * Public
+	 */
+	function getUsersInfo(uids, fields) {
+		trace("Get users info for " + uids);
+		
+		getGenericUsersInfo(uids, fields, function(result){
+			trace(_s.USERS_INFO);		
+			
+			trace(result);			
+			inspect(result);
+
+			dispatchEvent(_s.USERS_INFO);
+			dispatchFlashEvent("onUsersInfo", result);
+		});
+	}
+	
+	/**
+	 * Get info of the logged in user
+	 *
+	 * Public
+	 */
+	function getUserInfo(fields) {
+		trace("Get user info for logged in user");
+		
+		getGenericUsersInfo([_api._session.uid], fields, function(result){
+			trace(_s.USER_INFO);		
+			
+			trace(result[0]);			
+			inspect(result[0]);
+
+			dispatchEvent(_s.USER_INFO);
+			dispatchFlashEvent("onUserInfo", result[0]);
+		});
+	}
+	
+		function getGenericUsersInfo(uids, fields, callback) {
+			if(!fields)
+				fields = ["uid", "pic_square", "first_name", "last_name", "about_me", "sex", "name", "proxied_email"]; // Default array of props
+				
+			_api.users_getInfo(uids, fields, function(result, ex) {	
+				callback(result);
+			});
+		}
+		
+	//*********************************************************//
+		
+	function sendEmail(recipients, subject, text, fbml) {
+		trace("Send Email to '" + recipients + "': '" + subject + "', '" + text + "', '" + fbml + "'");
+		
+		_api.notifications_send(recipients, subject, text, fbml, function(result, ex) {
+			trace(_s.EMAIL_SENT);
+			
+			trace(result);
+			inspect(result);
+			
+			dispatchEvent(_s.EMAIL_SENT);
+			dispatchFlashEvent("onEmailSent");
+		}); 
+	}
+	
+	function sendNotification(to_ids, notification) {
+		trace("Send Notification to '" + to_ids + "': '" + notification + "'");
+		
+		_api.notifications_send(to_ids, notification, function(result, ex) {
+			trace(_s.NOTIFICATION_SENT);
+			
+			trace(result);
+			inspect(result);
+			
+			dispatchEvent(_s.NOTIFICATION_SENT);
+			dispatchFlashEvent("onNotificationSent");
+		}); 
+	}
+	
+	function getNotifications() {
+		trace("Get notifications of logged in user");
+		
+		_api.notifications_get(function(result){
+			trace(_s.NOTIFICATIONS_GET);
+			
+			trace(result);
+			inspect(result);
+			
+			dispatchEvent(_s.NOTIFICATIONS_GET);
+			dispatchFlashEvent("onNotificationGet", result);
+		});
+	}
+
+	//*********************************************************//
+	
+	function getAlbums() {
+	
+	}
+	
+	function getPhotosFromAlbum() {
+	
+	}
+	
+	function createAlbum() {
+	
+	}
+	
+	//*********************************************************//
+
+	/**
+	 * Publish something to the wall of the current logged in user or to the target user (target_id)
+	 *
+	 * Public
+	 */
+	function publish(user_message, attachment, action_links, target_id, user_message_prompt) {
+		FB.Connect.streamPublish(user_message, attachment, action_links, target_id, user_message_prompt, function(result, ex) {
+			trace(result);
+			trace(ex);
+		});
+	}
+	
+	/**
+	 * Get stream of a user (uid)
+	 *
+	 * Public
+	 */
+	function getStream(uid) {
+		trace("Get Stream of " + uid);
+		
+		_api.stream_get(uid, '', '', '', '', function(result) {
+			trace(_s.STREAM_GET);
+	
+			trace(result);
+			inspect(result);
+			
+			dispatchEvent(_s.STREAM_GET);
+			dispatchFlashEvent("onStreamGet", result);
+		});
+	}
+	
+	/**
+	 * Get comments of a streal story (post_id)
+	 *
+	 * Public
+	 */
+	function getStreamComments(post_id) {
+		trace("Get comments of stream with post_id " + post_id);
+		
+		_api.stream_getComments(post_id, function(result) {
+			trace(_s.STREAM_COMMENTS_GET);
+	
+			trace(result);
+			inspect(result);
+			
+			dispatchEvent(_s.STREAM_COMMENTS_GET);
+			dispatchFlashEvent("onStreamCommentsGet", result);
+		});	
+	}
+	
+	/** 
+	 * DEPECRATED
+	 *
+	function getStatus(uid, limit) {
+		trace("Get Status");
+		
+		_api.status_get(uid, limit, function(result, ex) {
+			trace("CURRENT_STATUS");
+			
+			trace(result);
+			
+			dispatchEvent(_s.CURRENT_STATUS);
+			dispatchFlashEvent("onCurrentStatus", result);
+		});		
+	}
+	
+	function setStatus(status) {
+		trace("Set status to '" + status + "'");
+
+		// FB.Connect.streamPublish(status);
+
+		_api.users_setStatus(status, false, false, function() {
+			trace("STATUS_SET");
+			
+			dispatchEvent(_s.STATUS_SET);
+			dispatchFlashEvent("onStatusSet");
+		});
+	}
+	*/
+	
+	//*********************************************************//
+	
+	function onFlashLoaded() {
+		trace("onFlashLoaded");
+		
+		_isFlashReady = true;
+		
+		if(_isLoggedIn) { // Notify Flash when FB User is logged in
+			trace("FB user logged in.");
+			
+			dispatchFlashEvent("onLoggedIn", api._session);
+		}
+	}
+	
+	//*********************************************************//
+	
+	/**
+	 * Dispatch Event
+	 *
+	 * Public
+	 */
+	function dispatchEvent(eventType, data) {
+		$(document).trigger(eventType, data);
+	}
+	
+	/**
+	 * Listen for event
+	 *
+	 * Public
+	 */
+	function addEventListener(eventType, func) {
+		$(document).bind(eventType, function(e, data) { func(data); });
+	}
+	
+	/**
+	 * Dispatch Event to Flash Object
+	 *
+	 * Public
+	 */
+	function dispatchFlashEvent(func) {
+		if(_oFlash && _isFlashReady) {
+			if(arguments.length > 1)
+				_oFlash[func](Array.prototype.slice.call(arguments).slice(1)[0]);
+			else
+				_oFlash[func]();
+		}
+	}
+	
+	//*********************************************************//
+	
+	// Init Public Methods
+	this.init = init;
+	this.login = login;
+	this.logout = logout;
+	this.isLoggedIn = isLoggedIn;
+	
+	this.sendEmail = sendEmail;
+	this.sendNotification = sendNotification;
+	this.getNotifications = getNotifications;
+	
+	this.getAlbums = getAlbums;
+	this.getPhotosFromAlbum = getPhotosFromAlbum;
+	this.createAlbum = createAlbum;
+	
+	this.publish = publish;
+	this.getStream = getStream;
+	this.getStreamComments = getStreamComments;
+	
+	this.askPermissions = askPermissions;
+	this.getAppUsers = getAppUsers;
+	this.getFriends = getFriends;
+	this.getUsersInfo = getUsersInfo;
+	this.getUserInfo = getUserInfo;
+	
+	this.dispatchEvent = dispatchEvent;
+	this.addEventListener = addEventListener;
+	this.dispatchFlashEvent = dispatchFlashEvent;
 }
 
 //***********************************************************************************************************//
 
-function FBFlashBridgeGetStream(userId) {
-	trace("GET STREAM OF " + userId);
-	
-	api.stream_get(userId, '', '', '', '', function(result) {
-		trace("STREAM_GET");
+if(!("console" in window) || !("firebug" in console)) {
+    var names = ["log", "debug", "info", "warn", "error", "assert", "dir", "dirxml", "group", "groupEnd", "time", "timeEnd", "count", "trace", "profile", "profileEnd"];
 
-		trace(result.posts[0]);
-		
-		FBFlashBridgeDispatcher("STREAM_GET");
-		
-		FBFlashBridgeFlashDispatcher("onStreamGet", result);
-	});
+    window.console = {};
+
+    for(var i = 0; i < names.length; ++i) window.console[names[i]] = function() {};
 }
 
-function FBFlashBridgeGetStreamComments(postId) {
-	trace("GET COMMENTS OF STREAM WITH POSTID " + userId);
+function trace(msg) {
+	// alert(msg);
 	
-	api.stream_getComments(postId, function(result) {
-		trace("STREAM_COMMENTS_GET");
-
-		trace(result);
-		
-		FBFlashBridgeDispatcher("STREAM_COMMENTS_GET");
-		
-		FBFlashBridgeFlashDispatcher("onStreamCommentsGet", result);
-	});
+	if(console)	
+		console.debug(msg);
 }
 
-//***********************************************************************************************************//
+function inspect(obj) {
+	if(console)	
+		console.dir(obj);
+}
+
+
+/*
 
 function FBFlashBridgeGetAlbums(userId) {
 	trace("GET ALBUMS OF " + userId);
@@ -277,160 +521,5 @@ function FBFlashBridgeGetPhotosInAlbum(albumId) {
 	});
 }
 
-//***********************************************************************************************************//
 
-function FBFlashBridgePromptPermission(permission) {
-	FB.ensureInit(function() {
-    	FB.Connect.showPermissionDialog(permission);
-	});
-}
-
-//***********************************************************************************************************//
-
-function FBFlashBridgePublishFeedStory(templateBundleId, templateData) {
-	FB.ensureInit(function() {
-        FB.Connect.showFeedDialog(parseInt(templateBundleId), templateData, null, null, FB.FeedStorySize.shortStory, FB.RequireConnect.promptConnect);
-	});
-}
-
-function FBFlashBridgeShowShare(link) {
-	FB.Connect.showShareDialog(link, function() {
-		alert("Share Test");
-	});
-}
-
-function FBFlashBridgeSendNotification(arrUsers, sNotification) {
-	api.notifications_send(arrUsers, sNotification, function(result, ex) {
-		FBFlashBridgeDispatcher("NOTIFICATION_SENT");
-		
-		FBFlashBridgeFlashDispatcher("onNotificationSent");
-	}); 
-}
-
-function FBFlashBridgeSendEMail(arrRecipients, sSubject, sText, sFbml) {
-	api.notifications_sendEmail(arrRecipients, sSubject, sText, sFbml, function(result, ex) {
-		if(result) {
-			FBFlashBridgeDispatcher("EMAIL_SENT");
-		
-			FBFlashBridgeFlashDispatcher("onEmailSent");
-		} else {
-			FBFlashBridgeDispatcher("EMAIL_SENT_FAILED_AUTH");
-		
-			FBFlashBridgeFlashDispatcher("onEmailSentFailedAuth");
-		}
-	}); 
-}
-
-//***********************************************************************************************************//
-
-function FBFlashBridgeLogOut() {
-	FB.Connect.logout(function() { 
-		trace("LOGGED_OUT");
-		
-		isLoggedIn = false;
-		
-		FBFlashBridgeDispatcher("LOGGED_OUT");
-		
-		FBFlashBridgeFlashDispatcher("onLoggedOut");
-	});
-}
-
-function FBFlashBridgeLogIn() {
-	FB.Connect.requireSession(function() {
-		trace("LOG IN READY");
-		
-		FBFlashBridgeLoggedIn();
-	}, true);
-}
-
-function FBFlashBridgeLoggedIn() {
-	api = FB.Facebook.apiClient;
-		
-	trace("LOGGED_IN");
-	
-	if(!isLoggedIn) {
-		isLoggedIn = true;
-
-		FBFlashBridgeDispatcher("LOGGED_IN");
-	
-		FBFlashBridgeFlashDispatcher("onLoggedIn", api._session);
-	}
-}
-
-function FBFlashBridgeOnLoad() {
-	FB.ensureInit(function() {
-		FB.Facebook.get_sessionState().waitUntilReady(function(session) {
-			inspect(session);
-			
-			if(session)
-				FBFlashBridgeLoggedIn();
-		});
-	});
-}
-
-window.onload = function() { FBFlashBridgeOnLoad(false); };
-
-//***********************************************************************************************************//	
-
-if(!("console" in window) || !("firebug" in console)) {
-    var names = ["log", "debug", "info", "warn", "error", "assert", "dir", "dirxml", "group", "groupEnd", "time", "timeEnd", "count", "trace", "profile", "profileEnd"];
-
-    window.console = {};
-
-    for(var i = 0; i < names.length; ++i) window.console[names[i]] = function() {};
-}
-
-function trace(msg) {
-	// alert(msg);
-	
-	if(console)	
-		console.debug(msg);
-}
-
-function inspect(obj) {
-	if(console)	
-		console.dir(obj);
-}
-
-//***********************************************************************************************************//
-
-function FBFlashBridgeDispatcher(eventType, data) {
-	$(document).trigger(eventType, data);
-}	
-
-function FBFlashBridgeListener(eventType, func) {
-	$(document).bind(eventType, function(e, data) { func(data); });
-}
-
-function FBFlashBridgeFlashDispatcher(func) {
-	if(oFlash && isFlashReady) { // && typeof obj.JStoASviaExternalInterface != "undefined")
-		if(arguments.length > 1)
-			oFlash[func](Array.prototype.slice.call(arguments).slice(1)[0]);
-		else
-			oFlash[func]();
-	}
-}
-
-function FBFlashBridgeInit(appName, appKey, appURL, flashObj) {
-	sAppName = appName;
-	sAppKey = appKey;
-	sAppURL = appURL;
-
-	oFlash = flashObj;
-	
-	FB.init(sAppKey, sAppURL);
-}
-
-function FBFlashBridgeFlashLoaded() {
-	trace("FLASH LOADED");
-	
-	isFlashReady = true;
-	
-	if(isLoggedIn) { // NOTIFY FLASH
-		trace("FB WAS ALLREADY LOGGED IN");
-		
-		FBFlashBridgeFlashDispatcher("onLoggedIn", api._session);
-	}
-}
-
-//***********************************************************************************************************//
+*/
