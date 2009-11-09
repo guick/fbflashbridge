@@ -33,11 +33,8 @@
 			var params = {allowFullScreen : true, allowScriptAccess: "always", wmode: "window"};
 			var attributes = {id: "flash_flash"};
 			
-			swfobject.embedSWF("assets/swf/FBFlashBridge.swf", "flash_alternative", "100%", "100%", "9.0.0", "assets/swf/playerProductInstall.swf", flashvars, params, attributes);
+			swfobject.embedSWF("assets/swf/FBFlashBridge.swf", "flash_alternative", "100%", "545", "9.0.0", "assets/swf/playerProductInstall.swf", flashvars, params, attributes);
 			
-			// EXTRA
-			// swfobject.getObjectById(objectIdStr); (bv. swfobject.getObjectById(objectIdStr).callFunction();)
-			// swfobject.getQueryParamValue(paramStr); (bv. var flashvars = {LANG: swfobject.getQueryParamValue("LANG")};)
 		</script>
 		
 	</head>
@@ -76,13 +73,11 @@
 		
 		<script type="text/javascript">
 
-			$(document).ready(function()
-			{
+			$(document).ready(function() {
 				setTimeout(delayedFBFlashBridgeInit, 500);
 			});
 			
-			function delayedFBFlashBridgeInit()
-			{
+			function delayedFBFlashBridgeInit() {
 				FBFlashBridgeInit("FBFlashBridge", "56299d47ded461a74afa8a03ab248414", "http://stream.microsite.be/cecemel/xd_receiver.htm", swfobject.getObjectById("flash_flash"));
 			}
 

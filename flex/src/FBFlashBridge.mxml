@@ -1,10 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" 
 	layout="absolute"
-	initialize="init()" width="100%">
+	initialize="init()" 
+	width="868" height="545" 
+	viewSourceURL="srcview/index.html">
 	
 	<mx:Script>
 		<![CDATA[
+			import mx.controls.Text;
 			import flash.utils.setTimeout;
 			import mx.controls.Alert;
 		
@@ -16,18 +19,44 @@
 			import be.wellconsidered.apis.fbbridge.events.FBBridgeEvent;
 			import be.wellconsidered.apis.fbbridge.FBBridge;
 		
-			private var _fbBridge:FBBridge;
+			public var _fbBridge:FBBridge;
 			
-			private function init():void
+			/*
+			ExternalInterface.addCallback("onAlbumsGet", onAlbumsGet);
+			ExternalInterface.addCallback("onPhotosOfAlbumGet", onPhotosOfAlbumGet);
+			ExternalInterface.addCallback("onAlbumCreated", onAlbumCreated); 
+			 */
+			
+			public function init():void
 			{
 				setTimeout(initBridge, 2000);
 				
 				btnConnect.alpha = .5;
 				btnConnect.enabled = false;
+				
+				initEventListeners();
+			}
+		
+			public function initEventListeners():void {
+				btnGetCurrentUserInfo.addEventListener(MouseEvent.CLICK, getCurrentUserInfo);
+				
+				btnStory.addEventListener(MouseEvent.CLICK, publishStory);
+				btnShare.addEventListener(MouseEvent.CLICK, shareSomething);
+				btnGetStream.addEventListener(MouseEvent.CLICK, getStream);
+				btnGetStreamComments.addEventListener(MouseEvent.CLICK, getStreamComments);
+				btnStatus.addEventListener(MouseEvent.CLICK, setStatus);
+				btnGetStatus.addEventListener(MouseEvent.CLICK, getCurrentStatus);
+				
+				btnNotF.addEventListener(MouseEvent.CLICK, sendFriendsNotification);
+				btnNotA.addEventListener(MouseEvent.CLICK, sendAppNotification);
+				btnEmailF.addEventListener(MouseEvent.CLICK, sendFriendsEmail);
+				btnEmailA.addEventListener(MouseEvent.CLICK, sendAppEmail);
 			}
 			
-			private function initBridge():void
+			public function initBridge():void
 			{
+				trace("initBridge");
+				
 				btnConnect.alpha = 1;
 				btnConnect.enabled = true;
 				
@@ -40,17 +69,23 @@
 				_fbBridge.init();
 			}
 			
-			private function onLoggedIn(e:FBBridgeEvent):void
+			public function onLoggedIn(e:FBBridgeEvent):void
 			{
 				trace("UID " + _fbBridge.session.uid);
 				
 				connectState(true);
 				
+				getCurrentUserInfo(null);
+			}
+			
+			public function getCurrentUserInfo(e:MouseEvent):void {
+				trace("Get Current User Info");
+				
 				_fbBridge.addEventListener(FBBridgeEvent.USER_INFO, onUserInfo);
 				_fbBridge.getUserInfo();
 			}
 			
-			private function onUserInfo(e:FBBridgeEvent):void
+			public function onUserInfo(e:FBBridgeEvent):void
 			{
 				var uInfo:FBBridgeUser = _fbBridge.user;
 				
@@ -62,7 +97,7 @@
 				imgProfile.load(uInfo.pic_square_with_logo);
 			}
 			
-			private function onLoggedOut(e:FBBridgeEvent):void 
+			public function onLoggedOut(e:FBBridgeEvent):void 
 			{ 
 				connectState(false); 
 				
@@ -72,13 +107,14 @@
 				imgProfile.load(null);
 			}
 			
-			private function connectState(isConnected:Boolean):void
+			public function connectState(isConnected:Boolean):void
 			{
 				trace("Connected state is " + isConnected);
 				
 				txtShare.enabled = isConnected;
 				txtStatus.enabled = isConnected;
 				
+				btnGetCurrentUserInfo.enabled = isConnected;	
 				btnGetStream.enabled = isConnected;	
 				btnEmailF.enabled = isConnected;	
 				btnEmailA.enabled = isConnected;	
@@ -107,9 +143,11 @@
 					btnConnect.alpha = 1;
 					btnConnect.enabled = true;
 				}
+				
+				btnGetStreamComments.enabled = false;
 			}
 			
-			private function disconnectFromFB():void
+			public function disconnectFromFB():void
 			{
 				trace("Disconnect from FB");
 				
@@ -118,41 +156,45 @@
 				Alert.show("You are logged out", "Succeeded");
 			}
 			
-			private function connectToFB():void
+			public function connectToFB():void
 			{
 				trace("Connect to FB");
 				
 				_fbBridge.login();
 			}
 			
-			private function inviteFriends():void
+			public function inviteFriends():void
 			{
 				trace("Invite Friends");
 				
 				_fbBridge.inviteFriends("Invite your friends!", "Invite your friends and earn extra credits.", "Come join me at FBFlashBridge and have some fun!");
 			}
 			
-			private function setStatus():void
+			public function setStatus(e:MouseEvent):void
 			{
 				trace("Set status to " + txtStatus.text);
 				
 				_fbBridge.setStatus(txtStatus.text);
 			}
 			
-			private function onStatusSet(e:FBBridgeEvent):void
+			public function onStatusSet(e:FBBridgeEvent):void
 			{
 				trace("Status is set");
 				
 				Alert.show("Status is set!", "Succeeded");
 			}
 			
-			private function getCurrentStatus():void
+			public function getCurrentStatus(e:MouseEvent):void
 			{
-				_fbBridge.addEventListener(FBBridgeEvent.CURRENT_STATUS, onCurrentStatus);
-				_fbBridge.getCurrentStatus(_fbBridge.user.uid, 100);	
+				if(_fbBridge) {
+					_fbBridge.addEventListener(FBBridgeEvent.CURRENT_STATUS, onCurrentStatus);
+					_fbBridge.getCurrentStatus(_fbBridge.user.uid, 100);
+				} else {
+					trace("_fbBridge not inited");
+				}
 			}
 			
-			private function onCurrentStatus(e:FBBridgeEvent):void
+			public function onCurrentStatus(e:FBBridgeEvent):void
 			{
 				var arrStatus:Array = e.data as Array;
 				
@@ -161,7 +203,7 @@
 				trace(arrStatus);
 			}
 			
-			private function shareSomething():void
+			public function shareSomething(e:MouseEvent):void
 			{
 				if(txtShare.text.length > 0)
 				{
@@ -171,18 +213,18 @@
 					Alert.show("You need to specify a link to share", "Warning!");
 			}
 			
-			private function setPerm():void
+			public function setPerm():void
 			{
 				if(dPermissions.selectedLabel.length > 0)
 					_fbBridge.promptPermission(FBBridgePermissions[dPermissions.selectedLabel]);
 			}
 			
-			private function publishStory():void
+			public function publishStory(e:MouseEvent):void
 			{
 				_fbBridge.publishFeedStory("45707232772", {});
 			}
 			
-			private function getFriends():void
+			public function getFriends():void
 			{
 				CursorManager.setBusyCursor();
 				
@@ -190,7 +232,7 @@
 				_fbBridge.getFriendsList();
 			}
 			
-			private function onFriendsList(e:FBBridgeEvent):void
+			public function onFriendsList(e:FBBridgeEvent):void
 			{
 				var arrFriends:Array = e.data as Array;
 				
@@ -202,7 +244,7 @@
 				_fbBridge.getUsersInfo(arrFriends, ["uid", "pic_square", "first_name", "last_name", "about_me", "sex", "name", "proxied_email"]);
 			}
 			
-			private function onUsersInfo(e:FBBridgeEvent):void
+			public function onUsersInfo(e:FBBridgeEvent):void
 			{
 				trace("onUsersInfo");
 				
@@ -224,7 +266,7 @@
 				CursorManager.removeBusyCursor();
 			}
 			
-			private function getAppUsers():void
+			public function getAppUsers():void
 			{
 				CursorManager.setBusyCursor();
 				
@@ -232,7 +274,7 @@
 				_fbBridge.getAppUsers();
 			}
 			
-			private function onAppUsers(e:FBBridgeEvent):void
+			public function onAppUsers(e:FBBridgeEvent):void
 			{
 				var arrUsers:Array = e.data as Array;
 				
@@ -244,7 +286,7 @@
 				_fbBridge.getUsersInfo(arrUsers, ["uid", "pic_square", "first_name", "last_name", "about_me", "sex", "name", "proxied_email"]);
 			}
 			
-			private function onAppUsersInfo(e:FBBridgeEvent):void
+			public function onAppUsersInfo(e:FBBridgeEvent):void
 			{
 				trace("onAppUsersInfo");
 				
@@ -266,7 +308,7 @@
 				CursorManager.removeBusyCursor();
 			}
 			
-			private function sendFriendsNotification():void
+			public function sendFriendsNotification(e:MouseEvent):void
 			{
 				if(dgFriends.selectedItems.length > 0)
 				{
@@ -284,7 +326,7 @@
 					Alert.show("You need to select one or more friends");
 			}
 			
-			private function sendAppNotification():void
+			public function sendAppNotification(e:MouseEvent):void
 			{
 				if(dgAppUsers.selectedItems.length > 0)
 				{
@@ -302,12 +344,12 @@
 					Alert.show("You need to select one or more friends");
 			}
 			
-			private function onNotSent(e:FBBridgeEvent):void
+			public function onNotSent(e:FBBridgeEvent):void
 			{
 				Alert.show("Notification has been sent");
 			}
 			
-			private function sendFriendsEmail():void
+			public function sendFriendsEmail(e:MouseEvent):void
 			{
 				if(dgFriends.selectedItems.length > 0)
 				{
@@ -326,7 +368,7 @@
 					Alert.show("You need to select one or more friends");
 			}
 			
-			private function sendAppEmail():void
+			public function sendAppEmail(e:MouseEvent):void
 			{
 				if(dgAppUsers.selectedItems.length > 0)
 				{
@@ -345,17 +387,17 @@
 					Alert.show("You need to select one or more friends");
 			}
 			
-			private function onEmailSent(e:FBBridgeEvent):void
+			public function onEmailSent(e:FBBridgeEvent):void
 			{
 				Alert.show("Email has been sent");
 			}
 			
-			private function onEmailSentFailedAuth(e:FBBridgeEvent):void
+			public function onEmailSentFailedAuth(e:FBBridgeEvent):void
 			{
 				Alert.show("Email has NOT been sent, user hasn't given Email Permissions.");
 			}
 			
-			private function getStream():void
+			public function getStream(e:MouseEvent):void
 			{
 				trace("Get Stream");
 				
@@ -363,11 +405,32 @@
 				_fbBridge.getStream(_fbBridge.user.uid);
 			}
 			
-			private function onStreamGet(e:FBBridgeEvent):void
+			public var streamPostId:Number = 0;
+			
+			public function getStreamComments(e:MouseEvent):void
+			{
+				trace("Get Stream Comments " + streamPostId);
+				
+				_fbBridge.addEventListener(FBBridgeEvent.STREAM_COMMENTS_GET, onStreamCommentsGet, false, 0, true);
+				_fbBridge.getStreamComments(streamPostId);
+			}
+			
+			public function onStreamGet(e:FBBridgeEvent):void
 			{
 				trace("onStreamGet");
 				
+				streamPostId = Number((e.data as Object).posts[0].post_id);
+				
+				btnGetStreamComments.enabled = true;
+				
 				Alert.show(String((e.data as Object).posts[0].message));
+			}
+			
+			public function onStreamCommentsGet(e:FBBridgeEvent):void
+			{
+				trace("onStreamCommentsGet");
+				
+				// Alert.show(String((e.data as Object).posts[0].message));
 			}
 			
 		]]>
@@ -378,20 +441,12 @@
 	<mx:Image x="10" y="50" click="connectToFB()" id="btnConnect" enabled="false"  source="../libs/Connect_light_medium_short.gif" autoLoad="true"/>
 	
 	<mx:Button x="107" y="50" label="Disconnect" enabled="false" id="btnDisconnect" click="disconnectFromFB()" />
+	<mx:Button x="181" y="80" label="Ask Permissions" id="btnPerm" click="setPerm()" enabled="false"/>
 	
-	<mx:TextInput x="10" y="140" id="txtStatus"  enabled="false" />
-	<mx:Button x="178" y="140" label="Set Status" id="btnStatus"  enabled="false" click="setStatus()"/>
-	<mx:Button x="190" y="80" label="Ask Permissions" id="btnPerm" click="setPerm()" enabled="false"/>
+	<mx:Button x="528.5" y="116" label="Invite Friends" id="btnInvite" enabled="false" click="inviteFriends()"/>
 	
-	<mx:TextInput x="10" y="228" id="txtShare" enabled="false"/>
-	<mx:Button x="178" y="228" label="Share Something" id="btnShare" enabled="false"  click="shareSomething()" />
-	
-	<mx:Button x="10" y="273" label="Publish Story" enabled="false" id="btnStory" click="publishStory()" />
-	
-	<mx:Button x="10" y="303" label="Invite Friends" id="btnInvite" enabled="false" click="inviteFriends()"/>
-	
-	<mx:Button x="338" y="114" label="Get Friends of user" id="btnGetFriends" enabled="false" click="getFriends()"/>
-	<mx:DataGrid x="338" y="143" width="443" height="180" enabled="false" id="dgFriends" allowMultipleSelection="true">
+	<mx:Button x="386.5" y="116" label="Get Friends of user" id="btnGetFriends" enabled="false" click="getFriends()"/>
+	<mx:DataGrid x="386.5" y="145" width="443" height="180" enabled="false" id="dgFriends" allowMultipleSelection="true">
 		<mx:columns>
 			<mx:DataGridColumn headerText="UID" dataField="uid"/>
 			<mx:DataGridColumn headerText="Name" dataField="name"/>
@@ -400,12 +455,12 @@
 		</mx:columns>
 	</mx:DataGrid>
 	
-	<mx:Image x="338" y="40" id="imgProfile" width="50" height="50"/>
-	<mx:Label x="394" y="40" width="153" id="lblName"/>
-	<mx:Label x="394" y="72" id="lblStatus" width="321"/>
+	<mx:Image x="386.5" y="50" id="imgProfile" width="50" height="50"/>
+	<mx:Label x="442.5" y="50" width="153" id="lblName"/>
+	<mx:Label x="442.5" y="82" id="lblStatus" width="321"/>
 	
-	<mx:Button x="338" y="351" label="Get Application Users" id="btnAppUsers" click="getAppUsers()" enabled="false"/>
-	<mx:DataGrid x="338" y="381" width="443" id="dgAppUsers" allowMultipleSelection="true">
+	<mx:Button x="386.5" y="353" label="Get Application Users" id="btnAppUsers" click="getAppUsers()" enabled="false"/>
+	<mx:DataGrid x="386.5" y="383" width="443" id="dgAppUsers" allowMultipleSelection="true">
 		<mx:columns>
 			<mx:DataGridColumn headerText="UID" dataField="uid"/>
 			<mx:DataGridColumn headerText="Name" dataField="name"/>
@@ -413,15 +468,6 @@
 			<mx:DataGridColumn headerText="Proxied Email" dataField="proxied_email"/>
 		</mx:columns>
 	</mx:DataGrid>
-	
-	<mx:Button x="10" y="352" label="Send Notification to selected friends" id="btnNotF" click="sendFriendsNotification()" enabled="false"/>
-	<mx:Button x="10" y="383" label="Send Notification to selected app users" id="btnNotA" click="sendAppNotification()" enabled="false"/>
-	
-	<mx:Button x="10" y="413" label="Send Email to selected friends" id="btnEmailF" click="sendFriendsEmail()" enabled="false"/>
-	<mx:Button x="10" y="444" label="Send Email to selected app users" id="btnEmailA" click="sendAppEmail()" enabled="false"/>
-	<mx:Text x="10" y="202" text="Share Link"/>
-	<mx:Text x="10" y="114" text="Status message"/>
-	<mx:Button x="178" y="170" label="Get Current Status" enabled="false" id="btnGetStatus" click="getCurrentStatus()"/>
 	<mx:ComboBox x="10" y="80" id="dPermissions" enabled="false">
 		<mx:dataProvider>
           <mx:Array>
@@ -442,6 +488,32 @@
            </mx:Array>
        </mx:dataProvider>
 	</mx:ComboBox>
-	<mx:Button x="10" y="501" label="Get last item in Stream" id="btnGetStream" click="getStream()" enabled="false"/>
+	
+	<mx:TabNavigator x="10" y="132" width="353" height="391" creationPolicy="all">
+		<mx:Canvas label="Stream" width="100%" height="100%" creationPolicy="all">
+			<mx:Button x="10" y="36" label="Publish Story" enabled="false" id="btnStory" />
+			<mx:TextInput x="10" y="102" id="txtShare" enabled="false"/>
+			<mx:Button x="178" y="102" label="Share Something" id="btnShare" enabled="false" />
+			<mx:Text x="10" y="76" text="Share Link"/>
+			<mx:Text x="10" y="142" text="Get stream stories"/>
+			<mx:Text x="10" y="10" text="Publish a story to your stream"/>
+			<mx:Button x="10" y="168" label="Get last item in Stream" id="btnGetStream" enabled="false"/>
+			<mx:Button x="10" y="198" label="Get comments of last item in Stream" id="btnGetStreamComments" enabled="false"/>
+			<mx:TextInput x="10" y="264" id="txtStatus"  enabled="false" />
+			<mx:Button x="178" y="264" label="Set Status" id="btnStatus"  enabled="false" />
+			<mx:Text x="10" y="238" text="Your status"/>
+			<mx:Button x="10" y="294" label="Get Current Status" enabled="false" id="btnGetStatus" />
+		</mx:Canvas>
+		
+		<mx:Canvas label="Communication" width="100%" height="100%" creationPolicy="all">
+			<mx:Button x="10" y="36" label="Send Notification to selected friends" id="btnNotF"  enabled="false"/>
+			<mx:Button x="10" y="67" label="Send Notification to selected app users" id="btnNotA" enabled="false"/>
+			<mx:Button x="10" y="133" label="Send Email to selected friends" id="btnEmailF" enabled="false"/>
+			<mx:Button x="10" y="164" label="Send Email to selected app users" id="btnEmailA" enabled="false"/>
+			<mx:Text x="10" y="107" text="Send emails"/>
+			<mx:Text x="10" y="10" text="Send notifications"/>
+		</mx:Canvas>		
+	</mx:TabNavigator>
+	<mx:Button x="386" y="20" label="Get Curent User Info" id="btnGetCurrentUserInfo" enabled="false"/>
 	
 </mx:Application>

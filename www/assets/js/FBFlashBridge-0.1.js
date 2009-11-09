@@ -1,3 +1,21 @@
+function FBFlashBridge() {
+
+	var sAppName = "";
+	var sAppURL = "";
+	var sAppKey = "";
+	
+	var api;
+	var friendResult;
+	var userResult;
+	var usersResult;
+	var oFlash = null;
+	var isFlashReady = false;
+	var isLoggedIn = false;
+
+	
+
+}
+
 /*
  * fbFlashBridge - Facebook Connect Flash Bridge
  * 
@@ -123,7 +141,7 @@ function FBFlashBridgeGetCurrentStatus(userId, limit) {
 //***********************************************************************************************************//
 
 function FBFlashBridgeUserInfo(userId, arrProfileData) {
-	trace("GETTING USER INFO OF LOGGED IN USER OR USER WITH GIVEN UID (" + userId + " or " + api._session.uid + ")");
+	trace("GETTING USER INFO OF LOGGED IN USER OR USER WITH GIVEN UID");
 
 	// ["timezone", "status", "sex", "proxied_email", "profile_url", "pic_square_with_logo", "pic_square", "pic_small_with_logo", "pic_small", "pic_big_with_logo", "pic_big", "pic_with_logo", "pic", "name", "first_name", "last_name", "is_app_user", "hometown_location", "birthday", "about_me", "uid"]
 	
@@ -202,7 +220,7 @@ function FBFlashBridgeGetStream(userId) {
 }
 
 function FBFlashBridgeGetStreamComments(postId) {
-	trace("GET COMMENTS OF STREAM WITH POSTID " + postId);
+	trace("GET COMMENTS OF STREAM WITH POSTID " + userId);
 	
 	api.stream_getComments(postId, function(result) {
 		trace("STREAM_COMMENTS_GET");
