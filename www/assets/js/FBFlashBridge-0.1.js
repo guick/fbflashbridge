@@ -280,17 +280,47 @@ function FBFlashBridge(appName, appKey, appURL, flashObject) {
 	}
 
 	//*********************************************************//
+
+	function getAlbums(uid) {
+		trace("Get albums of " + uid);
+		
+		_api.photos_getAlbums(uid, null, function(result) {
+			trace(_s.ALBUMS_GET);
 	
-	function getAlbums() {
-	
+			trace(result);
+			
+			FBFlashBridgeDispatcher("ALBUMS_GET");
+			
+			FBFlashBridgeFlashDispatcher("onAlbumsGet", result);
+		});
 	}
 	
 	function getPhotosFromAlbum() {
+		trace("Get photos of albums " + albumId);
+		
+		_api.photos_get(null, albumId, null, function(result) {
+			trace("PHOTOS_ALBUM_GET");
 	
+			trace(result);
+			
+			FBFlashBridgeDispatcher("PHOTOS_ALBUM_GET");
+			
+			FBFlashBridgeFlashDispatcher("onPhotosOfAlbumGet", result);
+		});	
 	}
 	
 	function createAlbum() {
+		trace("CREATE ALBUM WITH NAME: '" + name + "', LOCATION: '" + location + "', DESCR: '" + description + "'");
+		
+		_api.photos_createAlbum(name, location, description, function(result) {
+			trace("ALBUM_CREATE");
 	
+			trace(result);
+			
+			FBFlashBridgeDispatcher("ALBUM_CREATE");
+			
+			FBFlashBridgeFlashDispatcher("onAlbumCreated", result);
+		});	
 	}
 	
 	//*********************************************************//
@@ -301,6 +331,13 @@ function FBFlashBridge(appName, appKey, appURL, flashObject) {
 	 * Public
 	 */
 	function publish(user_message, attachment, action_links, target_id, user_message_prompt) {
+	var attach = {
+				'name':'Go grab your free bundle right now!',
+				'href':'http://www.macheist.com/nano/facebook',
+				'caption':'Download full copies of six top Mac apps normally costing over $150 totally for free at MacHeist!',
+				'description':"There’s something for everyone, whether you’re a gamer, a student, a writer, a twitter addict, or just love Mac apps. Plus as a Facebook user you can also get VirusBarrier X5 ($70) as a bonus. Don’t miss out!",
+				'media':[{'type':'image','src':'http://www.macheist.com/static/facebook/facebook_mh.png','href':'http://www.macheist.com/nano/facebook'}]
+			}
 		FB.Connect.streamPublish(user_message, attachment, action_links, target_id, user_message_prompt, function(result, ex) {
 			trace(result);
 			trace(ex);
@@ -475,51 +512,3 @@ function inspect(obj) {
 	if(console)	
 		console.dir(obj);
 }
-
-
-/*
-
-function FBFlashBridgeGetAlbums(userId) {
-	trace("GET ALBUMS OF " + userId);
-	
-	api.photos_getAlbums(userId, null, function(result) {
-		trace("ALBUMS_GET");
-
-		trace(result);
-		
-		FBFlashBridgeDispatcher("ALBUMS_GET");
-		
-		FBFlashBridgeFlashDispatcher("onAlbumsGet", result);
-	});
-}
-
-function FBFlashBridgeCreateAlbum(name, location, description) {
-	trace("CREATE ALBUM WITH NAME: '" + name + "', LOCATION: '" + location + "', DESCR: '" + description + "'");
-	
-	api.photos_createAlbum(name, location, description, function(result) {
-		trace("ALBUM_CREATE");
-
-		trace(result);
-		
-		FBFlashBridgeDispatcher("ALBUM_CREATE");
-		
-		FBFlashBridgeFlashDispatcher("onAlbumCreated", result);
-	});
-}
-
-function FBFlashBridgeGetPhotosInAlbum(albumId) {
-	trace("GET PHOTOS OF ALBUMS " + albumId);
-	
-	api.photos_get(null, albumId, null, function(result) {
-		trace("PHOTOS_ALBUM_GET");
-
-		trace(result);
-		
-		FBFlashBridgeDispatcher("PHOTOS_ALBUM_GET");
-		
-		FBFlashBridgeFlashDispatcher("onPhotosOfAlbumGet", result);
-	});
-}
-
-
-*/
