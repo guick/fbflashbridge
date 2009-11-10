@@ -10,8 +10,10 @@
 <sourceAttachmentPath/>
 </compiler>
 <applications>
+<application path="ConnectJSDemo.mxml"/>
 <application path="FBFlashBridge_v1.mxml"/>
 <application path="FBFlashBridge.mxml"/>
+<application path="AdobeFBApp.mxml"/>
 </applications>
 <modules/>
 <buildCSSFiles/>

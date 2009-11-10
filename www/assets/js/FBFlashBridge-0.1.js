@@ -3,6 +3,8 @@
  * 
  * Copyright (c) 2009 Pieter Michels
  *
+ * @author	Pieter Michels
+ *
  */
  
 /**
