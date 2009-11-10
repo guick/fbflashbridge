@@ -5,6 +5,20 @@
  *
  */
  
+/**
+ * @class	Facebook Connect Flash Bridge
+ *
+ * @author	Pieter Michels
+ * @version	0.1
+ * @requires	jQuery library (> 1.2.6) 
+ *
+ * @param	{String}	appName	Application Name
+ * @param	{String}	appKey	Application key
+ * @param	{String}	appURL	Url to the xd_receiver.htm file
+ * @param	{String}	flashObject	Reference to the Flash object
+ *
+ * @constructor
+ */
 function FBFlashBridge(appName, appKey, appURL, flashObject) {
 	
 	// Constructor Variables
@@ -35,6 +49,10 @@ function FBFlashBridge(appName, appKey, appURL, flashObject) {
 	this.NOTIFICATION_SENT = "NOTIFICATION_SENT";
 	this.NOTIFICATIONS_GET = "NOTIFICATIONS_GET";
 	
+	this.ALBUMS_GET = "ALBUMS_GET";
+	this.ALBUM_PHOTOS_GET = "ALBUM_PHOTOS_GET";
+	this.ALBUM_CREATE = "ALBUM_CREATE";
+	
 	// Private Variables
 	var _s = this;
 	
@@ -49,8 +67,6 @@ function FBFlashBridge(appName, appKey, appURL, flashObject) {
 	
 	/**
 	 * Initialize class
-	 * 
-	 * Private
 	 */
 	function init() {
 		trace("Init FBFlashBridge");
@@ -72,7 +88,7 @@ function FBFlashBridge(appName, appKey, appURL, flashObject) {
 	/**
 	 * Log In
 	 *
-	 * Public
+	 * @public
 	 */
 	function login() {
 		trace("Login");
@@ -84,6 +100,10 @@ function FBFlashBridge(appName, appKey, appURL, flashObject) {
 		}, true);	
 	}
 	
+		/**
+		 *
+		 * @private
+		 */
 		function onLoggedIn() {
 			trace("onLoggedIn");
 					
@@ -100,7 +120,7 @@ function FBFlashBridge(appName, appKey, appURL, flashObject) {
 	/**
 	 * Log Out
 	 *
-	 * Public
+	 * @public
 	 */
 	function logout() {
 		trace("Log Out");
@@ -118,7 +138,7 @@ function FBFlashBridge(appName, appKey, appURL, flashObject) {
 	/**
 	 * Is user logged in?
 	 *
-	 * Public
+	 * @public
 	 */
 	function isLoggedIn() {
 		return _isLoggedIn;
@@ -129,7 +149,9 @@ function FBFlashBridge(appName, appKey, appURL, flashObject) {
 	/**
 	 * Ask for permissions
 	 *
-	 * Public
+	 * @param	{String}	permissions	The permission you want to ask, can be more than one (comma separated)
+	 *
+	 * @public
 	 */
 	function askPermissions(permissions) {
 		trace("Ask Permissions: " + permissions);
@@ -147,7 +169,7 @@ function FBFlashBridge(appName, appKey, appURL, flashObject) {
 	/**
 	 * Get all users of the application
 	 *
-	 * Public
+	 * @public
 	 */
 	function getAppUsers() {
 		trace("Get Users of this application");
@@ -169,7 +191,7 @@ function FBFlashBridge(appName, appKey, appURL, flashObject) {
 	/**
 	 * Get friends of the logged in user
 	 *
-	 * Public
+	 * @public
 	 */
 	function getFriends() {
 		trace("Get Friends of logged in user");
@@ -191,7 +213,10 @@ function FBFlashBridge(appName, appKey, appURL, flashObject) {
 	/**
 	 * Get info of array of users (can contain 1 element)
 	 *
-	 * Public
+	 * @param	{Array}	uids 	List of uids you want to access
+	 * @param	{Array}	fields	List of fields
+	 *
+	 * @public
 	 */
 	function getUsersInfo(uids, fields) {
 		trace("Get users info for " + uids);
@@ -210,7 +235,9 @@ function FBFlashBridge(appName, appKey, appURL, flashObject) {
 	/**
 	 * Get info of the logged in user
 	 *
-	 * Public
+	 * @param	{Array}	fields	List of fields
+	 *
+	 * @public
 	 */
 	function getUserInfo(fields) {
 		trace("Get user info for logged in user");
@@ -226,6 +253,10 @@ function FBFlashBridge(appName, appKey, appURL, flashObject) {
 		});
 	}
 	
+		/**
+		 *
+		 * @private
+		 */
 		function getGenericUsersInfo(uids, fields, callback) {
 			if(!fields)
 				fields = ["uid", "pic_square", "first_name", "last_name", "about_me", "sex", "name", "proxied_email"]; // Default array of props
@@ -236,7 +267,17 @@ function FBFlashBridge(appName, appKey, appURL, flashObject) {
 		}
 		
 	//*********************************************************//
-		
+	
+	/**
+	 * Send e-mail to recipients.
+	 *
+	 * @param	{String}	recipients	Comma separated list of user ids
+	 * @param	{String}	subject	The subject
+	 * @param	{String}	text	The e-mail message
+	 * @param	{String}	fbml	FBML included in e-mail
+	 *
+	 * @public
+	 */	
 	function sendEmail(recipients, subject, text, fbml) {
 		trace("Send Email to '" + recipients + "': '" + subject + "', '" + text + "', '" + fbml + "'");
 		
@@ -251,6 +292,14 @@ function FBFlashBridge(appName, appKey, appURL, flashObject) {
 		}); 
 	}
 	
+	/**
+	 * Send notification to an arrays of uids. Notification can contain html.
+	 *
+	 * @param	{String}	to_ids	List of user ids
+	 * @param	{String}	notification	Notification message
+	 *
+	 * @public
+	 */
 	function sendNotification(to_ids, notification) {
 		trace("Send Notification to '" + to_ids + "': '" + notification + "'");
 		
@@ -265,6 +314,11 @@ function FBFlashBridge(appName, appKey, appURL, flashObject) {
 		}); 
 	}
 	
+	/**
+	 * Get all notification messages of current user (includes group invites, event invites, ...)
+	 *
+	 * @public
+	 */
 	function getNotifications() {
 		trace("Get notifications of logged in user");
 		
@@ -281,45 +335,68 @@ function FBFlashBridge(appName, appKey, appURL, flashObject) {
 
 	//*********************************************************//
 
+	/**
+	 * Get albums for a user or logged in user (if left blank)
+	 *
+	 * @param	{String}	uid	User id
+	 *
+	 * @public
+	 */
 	function getAlbums(uid) {
 		trace("Get albums of " + uid);
 		
-		_api.photos_getAlbums(uid, null, function(result) {
+		_api.photos_getAlbums(uid, '', function(result) {
 			trace(_s.ALBUMS_GET);
 	
 			trace(result);
+			inspect(result);
 			
-			FBFlashBridgeDispatcher("ALBUMS_GET");
-			
-			FBFlashBridgeFlashDispatcher("onAlbumsGet", result);
+			dispatchEvent(_s.ALBUMS_GET);
+			dispatchFlashEvent("onAlbumsGet", result);
 		});
 	}
 	
-	function getPhotosFromAlbum() {
+	/**
+	 * Get all photos for a given album (albumid)
+	 *
+	 * @param	{String}	albumId	Album id
+	 *
+	 * @public
+	 */
+	function getAlbumPhotos(albumId) {
 		trace("Get photos of albums " + albumId);
 		
 		_api.photos_get(null, albumId, null, function(result) {
-			trace("PHOTOS_ALBUM_GET");
+			trace(_s.ALBUM_PHOTOS_GET);
 	
 			trace(result);
+			inspect(result);
 			
-			FBFlashBridgeDispatcher("PHOTOS_ALBUM_GET");
-			
-			FBFlashBridgeFlashDispatcher("onPhotosOfAlbumGet", result);
+			dispatchEvent(_s.ALBUM_PHOTOS_GET);
+			dispatchFlashEvent("onPhotosOfAlbumGet", result);
 		});	
 	}
 	
-	function createAlbum() {
+	/**
+	 * Create album for the current user
+	 *
+	 * @param	{String}	name	Name of album
+	 * @param	{String}	location	Location of album
+	 * @param	{String}	description	Description of album
+	 *
+	 * @public
+	 */
+	function createAlbum(name, location, description) {
 		trace("CREATE ALBUM WITH NAME: '" + name + "', LOCATION: '" + location + "', DESCR: '" + description + "'");
 		
 		_api.photos_createAlbum(name, location, description, function(result) {
-			trace("ALBUM_CREATE");
+			trace(_s.ALBUM_CREATE);
 	
 			trace(result);
+			inspect(result);
 			
-			FBFlashBridgeDispatcher("ALBUM_CREATE");
-			
-			FBFlashBridgeFlashDispatcher("onAlbumCreated", result);
+			dispatchEvent(_s.ALBUM_CREATE);
+			dispatchFlashEvent("onAlbumCreated", result);
 		});	
 	}
 	
@@ -328,16 +405,17 @@ function FBFlashBridge(appName, appKey, appURL, flashObject) {
 	/**
 	 * Publish something to the wall of the current logged in user or to the target user (target_id)
 	 *
-	 * Public
+	 * @public
 	 */
 	function publish(user_message, attachment, action_links, target_id, user_message_prompt) {
-	var attach = {
+		/*var attach = {
 				'name':'Go grab your free bundle right now!',
 				'href':'http://www.macheist.com/nano/facebook',
 				'caption':'Download full copies of six top Mac apps normally costing over $150 totally for free at MacHeist!',
 				'description':"There’s something for everyone, whether you’re a gamer, a student, a writer, a twitter addict, or just love Mac apps. Plus as a Facebook user you can also get VirusBarrier X5 ($70) as a bonus. Don’t miss out!",
 				'media':[{'type':'image','src':'http://www.macheist.com/static/facebook/facebook_mh.png','href':'http://www.macheist.com/nano/facebook'}]
 			}
+		*/	
 		FB.Connect.streamPublish(user_message, attachment, action_links, target_id, user_message_prompt, function(result, ex) {
 			trace(result);
 			trace(ex);
@@ -347,7 +425,9 @@ function FBFlashBridge(appName, appKey, appURL, flashObject) {
 	/**
 	 * Get stream of a user (uid)
 	 *
-	 * Public
+	 * @param	{String}	uid	User id
+	 *
+	 * @public
 	 */
 	function getStream(uid) {
 		trace("Get Stream of " + uid);
@@ -366,7 +446,9 @@ function FBFlashBridge(appName, appKey, appURL, flashObject) {
 	/**
 	 * Get comments of a streal story (post_id)
 	 *
-	 * Public
+	 * @param	{String}	post_id	Post id
+	 *
+	 * @public
 	 */
 	function getStreamComments(post_id) {
 		trace("Get comments of stream with post_id " + post_id);
@@ -414,6 +496,9 @@ function FBFlashBridge(appName, appKey, appURL, flashObject) {
 	
 	//*********************************************************//
 	
+	/**
+	 * Called from Flash
+	 */
 	function onFlashLoaded() {
 		trace("onFlashLoaded");
 		
@@ -431,7 +516,10 @@ function FBFlashBridge(appName, appKey, appURL, flashObject) {
 	/**
 	 * Dispatch Event
 	 *
-	 * Public
+	 * @param	{String}	eventType	Type of event
+	 * @param	{String}	data	Data passed as arguments to the functions that are listening
+	 *
+	 * @public
 	 */
 	function dispatchEvent(eventType, data) {
 		$(document).trigger(eventType, data);
@@ -440,16 +528,23 @@ function FBFlashBridge(appName, appKey, appURL, flashObject) {
 	/**
 	 * Listen for event
 	 *
-	 * Public
+	 * @param	{String}	eventType	Type of event you are listening to
+	 * @param	{String}	func	Function that will be triggered when the event is fired
+	 *
+	 * @public
 	 */
 	function addEventListener(eventType, func) {
 		$(document).bind(eventType, function(e, data) { func(data); });
 	}
 	
 	/**
-	 * Dispatch Event to Flash Object
+	 * Dispatch Event to Flash Object. 
 	 *
-	 * Public
+	 * @example	<br />Usage: dispatchEvent("flashFunction", parameter1, parameter2);
+	 *
+	 * @param	{String}	func	Function to call in flash. Arguments can be passed as well as extra parameters
+	 *
+	 * @public
 	 */
 	function dispatchFlashEvent(func) {
 		if(_oFlash && _isFlashReady) {
@@ -473,7 +568,7 @@ function FBFlashBridge(appName, appKey, appURL, flashObject) {
 	this.getNotifications = getNotifications;
 	
 	this.getAlbums = getAlbums;
-	this.getPhotosFromAlbum = getPhotosFromAlbum;
+	this.getAlbumPhotos = getAlbumPhotos;
 	this.createAlbum = createAlbum;
 	
 	this.publish = publish;

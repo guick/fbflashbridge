@@ -36,7 +36,7 @@
 		<div id="flash_alternative">
 			<a href="javascript:_fbFlashBridge.login();">Log In</a>
 			
-			<br /><br />
+			<br />
 			
 			<a href="javascript:_fbFlashBridge.logout();">Log Out</a>
 			
@@ -48,27 +48,27 @@
 			
 			<a href="javascript:_fbFlashBridge.publish('FBFlashBridge');">Set Status</a>
 			
-			<br /><br />
+			<br />
 			
 			<a href="javascript:_fbFlashBridge.publish('FBFlashBridge', {}, null, null, 'What are you going to say?');">Publish Story</a>
 			
-			<br /><br />
+			<br />
 			
 			<a href="javascript:_fbFlashBridge.getStream(null);">Get Stream of Logged In User</a>
 			
-			<br /><br />
+			<br />
 			
 			<a href="javascript:_fbFlashBridge.getStream(prompt('Enter uid', ''));">Get Stream of uid</a>
 			
-			<br /><br />
+			<br />
 			
 			<a href="javascript:_fbFlashBridge.getStreamComments(prompt('Enter post_id', '531225411_175985616729'));">Get Stream Comments</a>
 			
 			<br /><br />
 			
 			<a href="javascript:_fbFlashBridge.getFriends();">Get Friends</a>
-			
-			<br /><br />
+
+			<br />
 			
 			<a href="javascript:_fbFlashBridge.getAppUsers();">Get App Users</a>
 			
@@ -84,15 +84,27 @@
 
 			<a href="javascript:_fbFlashBridge.sendEmail(prompt('Array of ids', '627461028, 1717796132, 100000123296201, 100000160539135, 100000449340953'), prompt('Your subject', 'Test subject'), prompt('Your Message', 'Test message'));">Send E-mail</a>
 			
-			<br /><br />
+			<br />
 			
 			<a href="javascript:_fbFlashBridge.sendNotification(prompt('Array of ids', '627461028, 1717796132, 100000123296201, 100000160539135, 100000449340953'), prompt('Your notification message', 'Test notification'));">Send notification</a>
 			
-			<br /><br />
+			<br />
 			
 			<a href="javascript:_fbFlashBridge.getNotifications();">Get Notifications of logged in user</a>
 			
 			<br /><br />
+			
+			<a href="javascript:_fbFlashBridge.getAlbums(prompt('Fill in user id or leave blank for current user'));">Get Albums of user</a>
+			
+			<br />
+			
+			<a href="javascript:_fbFlashBridge.getAlbumPhotos(prompt('Albumid?', ''));">Get photos from album</a>
+			
+			<br />
+			
+			<a href="javascript:_fbFlashBridge.createAlbum(prompt('Name?'), prompt('Location?'), prompt('Description?'));">Create album for current user</a>
+			
+			<br />
 			
 		</div>
 		

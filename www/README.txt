@@ -1,0 +1,1 @@
+java -jar jsrun.jar app/run.js -a -t=templates/jsdoc -d=/Volumes/data/Users/pieterm/Documents/Projects/_Tools/FBFlashBridge/www/docs /Volumes/data/Users/pieterm/Documents/Projects/_Tools/FBFlashBridge/www/assets/js/FBFlashBridge-0.1.js
