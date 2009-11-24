@@ -13,6 +13,7 @@
 		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
 		
 		<script src="assets/js/FBFlashBridge-0.1.js" type="text/javascript"></script>
+		<script src="assets/js/json2.js" type="text/javascript"></script>
 		
 		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/swfobject/2/swfobject.js"></script>
 		<script type="text/javascript">
@@ -21,7 +22,7 @@
 			var params = {allowFullScreen : true, allowScriptAccess: "always", wmode: "transparent"};
 			var attributes = {id: "flash_flash"};
 			
-			// swfobject.embedSWF("assets/swf/FBFlashBridge.swf", "flash_alternative", "100%", "545", "9.0.0", "assets/swf/playerProductInstall.swf", flashvars, params, attributes);
+			swfobject.embedSWF("assets/swf/FBFlashBridge.swf", "flash_alternative", "545", "500", "9.0.0", "assets/swf/playerProductInstall.swf", flashvars, params, attributes);
 			
 		</script>
 		
@@ -32,8 +33,11 @@
 		
 		<!-- -------------------------------------------------------------------------------------------- -->
 		
-		
 		<div id="flash_alternative">
+			
+		</div>
+		
+		<div id="flash_content">
 		
 			<a href="javascript:_fbFlashBridge.login();">Log In</a>
 			
@@ -117,10 +121,10 @@
 			var _fbFlashBridge;
 
 			$(document).ready(function() {
-				setTimeout(delayedFBFlashBridgeInit, 500);
+				setTimeout(delayedInit, 500);
 			});
 			
-			function delayedFBFlashBridgeInit() {
+			function delayedInit() {
 			
 				_fbFlashBridge = new FBFlashBridge("FBFlashBridge", "ab00ea694dbb0fcf4f1b23131678cd4a", "http://fbflashbridge.wellconsidered.be/xd_receiver.htm", swfobject.getObjectById("flash_flash"));
 				

@@ -31,6 +31,7 @@ function FBFlashBridge(appName, appKey, appURL, flashObject) {
 	
 	// Static (Public) Variables
 	this.LOGGED_IN = "LOGGED_IN";
+	this.NOT_LOGGED_IN = "NOT_LOGGED_IN";
 	this.LOGGED_OUT = "LOGGED_OUT";
 	
 	// this.CURRENT_STATUS = "CURRENT_STATUS";
@@ -59,10 +60,6 @@ function FBFlashBridge(appName, appKey, appURL, flashObject) {
 	var _s = this;
 	
 	var _api;
-	
-	var _friendResult;
-	var _userResult;
-	var _usersResult;
 	
 	var _isLoggedIn = false;
 	var _isFlashReady = false;
@@ -114,8 +111,7 @@ function FBFlashBridge(appName, appKey, appURL, flashObject) {
 			if(!_isLoggedIn) {
 				_isLoggedIn = true;
 	
-				dispatchEvent(_s.LOGGED_IN);
-				dispatchFlashEvent("onLoggedIn", _api._session);
+				dispatchEvent(_s.LOGGED_IN, _api._session);
 			}
 		}
 	
@@ -132,8 +128,7 @@ function FBFlashBridge(appName, appKey, appURL, flashObject) {
 			
 			_isLoggedIn = false;
 			
-			dispatchEvent(_s.LOGGED_OUT);
-			dispatchFlashEvent("onLoggedOut");
+			dispatchEvent(_s.LOGGED_OUT, true);
 		});	
 	}
 	
@@ -144,6 +139,15 @@ function FBFlashBridge(appName, appKey, appURL, flashObject) {
 	 */
 	function isLoggedIn() {
 		return _isLoggedIn;
+	}
+	
+	/**
+	 * Get current sessions
+	 *
+	 * @public
+	 */
+	function getSession() {
+		return _api._session;
 	}
 	
 	//*********************************************************//
@@ -162,8 +166,7 @@ function FBFlashBridge(appName, appKey, appURL, flashObject) {
 	    	FB.Connect.showPermissionDialog(permissions, function(){
 	    		trace(_s.PERMISSIONS_SET);
 	    		
-	    		dispatchEvent(_s.PERMISSIONS_SET);
-				dispatchFlashEvent("onPermissionsSet");
+	    		dispatchEvent(_s.PERMISSIONS_SET, true);
 	    	});
 		});
 	}
@@ -185,8 +188,7 @@ function FBFlashBridge(appName, appKey, appURL, flashObject) {
 			if(!$.isArray(result))
 				result = [];
 				
-			dispatchEvent(_s.APP_USERS);
-			dispatchFlashEvent("onAppUsers", result);
+			dispatchEvent(_s.APP_USERS, result);
 		});		
 	}
 	
@@ -207,8 +209,7 @@ function FBFlashBridge(appName, appKey, appURL, flashObject) {
 			if(!$.isArray(result))
 				result = [];
 			
-			dispatchEvent(_s.FRIENDS_GET);
-			dispatchFlashEvent("onFriendsList", result);
+			dispatchEvent(_s.FRIENDS_GET, result);
 		});		
 	}
 	
@@ -229,8 +230,7 @@ function FBFlashBridge(appName, appKey, appURL, flashObject) {
 			trace(result);			
 			inspect(result);
 
-			dispatchEvent(_s.USERS_INFO);
-			dispatchFlashEvent("onUsersInfo", result);
+			dispatchEvent(_s.USERS_INFO, result);
 		});
 	}
 	
@@ -250,8 +250,7 @@ function FBFlashBridge(appName, appKey, appURL, flashObject) {
 			trace(result[0]);			
 			inspect(result[0]);
 
-			dispatchEvent(_s.USER_INFO);
-			dispatchFlashEvent("onUserInfo", result[0]);
+			dispatchEvent(_s.USER_INFO, result[0]);
 		});
 	}
 	
@@ -289,8 +288,7 @@ function FBFlashBridge(appName, appKey, appURL, flashObject) {
 			trace(result);
 			inspect(result);
 			
-			dispatchEvent(_s.EMAIL_SENT);
-			dispatchFlashEvent("onEmailSent");
+			dispatchEvent(_s.EMAIL_SENT, true);
 		}); 
 	}
 	
@@ -311,8 +309,7 @@ function FBFlashBridge(appName, appKey, appURL, flashObject) {
 			trace(result);
 			inspect(result);
 			
-			dispatchEvent(_s.NOTIFICATION_SENT);
-			dispatchFlashEvent("onNotificationSent");
+			dispatchEvent(_s.NOTIFICATION_SENT, true);
 		}); 
 	}
 	
@@ -330,8 +327,7 @@ function FBFlashBridge(appName, appKey, appURL, flashObject) {
 			trace(result);
 			inspect(result);
 			
-			dispatchEvent(_s.NOTIFICATIONS_GET);
-			dispatchFlashEvent("onNotificationGet", result);
+			dispatchEvent(_s.NOTIFICATIONS_GET, result);
 		});
 	}
 
@@ -353,8 +349,7 @@ function FBFlashBridge(appName, appKey, appURL, flashObject) {
 			trace(result);
 			inspect(result);
 			
-			dispatchEvent(_s.ALBUMS_GET);
-			dispatchFlashEvent("onAlbumsGet", result);
+			dispatchEvent(_s.ALBUMS_GET, result);
 		});
 	}
 	
@@ -374,8 +369,7 @@ function FBFlashBridge(appName, appKey, appURL, flashObject) {
 			trace(result);
 			inspect(result);
 			
-			dispatchEvent(_s.ALBUM_PHOTOS_GET);
-			dispatchFlashEvent("onPhotosOfAlbumGet", result);
+			dispatchEvent(_s.ALBUM_PHOTOS_GET, true);
 		});	
 	}
 	
@@ -397,8 +391,7 @@ function FBFlashBridge(appName, appKey, appURL, flashObject) {
 			trace(result);
 			inspect(result);
 			
-			dispatchEvent(_s.ALBUM_CREATE);
-			dispatchFlashEvent("onAlbumCreated", result);
+			dispatchEvent(_s.ALBUM_CREATE, result);
 		});	
 	}
 	
@@ -440,8 +433,7 @@ function FBFlashBridge(appName, appKey, appURL, flashObject) {
 			trace(result);
 			inspect(result);
 			
-			dispatchEvent(_s.STREAM_GET);
-			dispatchFlashEvent("onStreamGet", result);
+			dispatchEvent(_s.STREAM_GET, result);
 		});
 	}
 	
@@ -461,8 +453,7 @@ function FBFlashBridge(appName, appKey, appURL, flashObject) {
 			trace(result);
 			inspect(result);
 			
-			dispatchEvent(_s.STREAM_COMMENTS_GET);
-			dispatchFlashEvent("onStreamCommentsGet", result);
+			dispatchEvent(_s.STREAM_COMMENTS_GET, result);
 		});	
 	}
 	
@@ -477,8 +468,7 @@ function FBFlashBridge(appName, appKey, appURL, flashObject) {
 			
 			trace(result);
 			
-			dispatchEvent(_s.CURRENT_STATUS);
-			dispatchFlashEvent("onCurrentStatus", result);
+			dispatchEvent(_s.CURRENT_STATUS, result);
 		});		
 	}
 	
@@ -490,8 +480,7 @@ function FBFlashBridge(appName, appKey, appURL, flashObject) {
 		_api.users_setStatus(status, false, false, function() {
 			trace("STATUS_SET");
 			
-			dispatchEvent(_s.STATUS_SET);
-			dispatchFlashEvent("onStatusSet");
+			dispatchEvent(_s.STATUS_SET, true);
 		});
 	}
 	*/
@@ -499,17 +488,28 @@ function FBFlashBridge(appName, appKey, appURL, flashObject) {
 	//*********************************************************//
 	
 	/**
-	 * Called from Flash
+	 * Only called from Flash
 	 */
 	function onFlashLoaded() {
-		trace("onFlashLoaded");
+		trace("onFlashLoaded (from Flash)");
 		
 		_isFlashReady = true;
+	}
+	
+	/**
+	 * Check logged in status for first call in Flash
+	 */
+	function checkLogin() {
+		trace("checkLogin (from Flash)");
 		
 		if(_isLoggedIn) { // Notify Flash when FB User is logged in
 			trace("FB user logged in.");
+
+			dispatchEvent(_s.LOGGED_IN, this.getSession());
+		} else {
+			trace("FB user NOT logged in.");
 			
-			dispatchFlashEvent("onLoggedIn", api._session);
+			dispatchEvent(_s.NOT_LOGGED_IN, true);
 		}
 	}
 	
@@ -518,12 +518,16 @@ function FBFlashBridge(appName, appKey, appURL, flashObject) {
 	/**
 	 * Dispatch Event
 	 *
+	 * @example	<br />Usage: dispatchEvent("flashFunction", parameter);
+	 *
 	 * @param	{String}	eventType	Type of event
 	 * @param	{String}	data	Data passed as arguments to the functions that are listening
 	 *
 	 * @public
 	 */
 	function dispatchEvent(eventType, data) {
+		dispatchFlashEvent("handleJSCall", eventType, data);
+		
 		$(document).trigger(eventType, data);
 	}
 	
@@ -542,16 +546,20 @@ function FBFlashBridge(appName, appKey, appURL, flashObject) {
 	/**
 	 * Dispatch Event to Flash Object. 
 	 *
-	 * @example	<br />Usage: dispatchEvent("flashFunction", parameter1, parameter2);
+	 * @example	<br />Usage: dispatchFlashEvent("flashFunction", parameter1, parameter2, ...);
 	 *
 	 * @param	{String}	func	Function to call in flash. Arguments can be passed as well as extra parameters
 	 *
 	 * @public
 	 */
 	function dispatchFlashEvent(func) {
+		var args = Array.prototype.slice.call(arguments).slice(1);
+		
+		trace("DFE: " + JSON.stringify(args));
+		
 		if(_oFlash && _isFlashReady) {
 			if(arguments.length > 1)
-				_oFlash[func](Array.prototype.slice.call(arguments).slice(1)[0]);
+				_oFlash[func](args);
 			else
 				_oFlash[func]();
 		}
@@ -582,6 +590,11 @@ function FBFlashBridge(appName, appKey, appURL, flashObject) {
 	this.getFriends = getFriends;
 	this.getUsersInfo = getUsersInfo;
 	this.getUserInfo = getUserInfo;
+	
+	this.getSession = getSession;
+	
+	this.onFlashLoaded = onFlashLoaded;
+	this.checkLogin = checkLogin;
 	
 	this.dispatchEvent = dispatchEvent;
 	this.addEventListener = addEventListener;

@@ -1,15 +1,20 @@
-/* hide from ie on mac \*/
-html { height: 100%; overflow: auto; }
+body { 
+	margin: 0; 
+	padding: 0; 
+	background-color: #fff; 
+}
 
 #flash_flash { 
-	position: absolute; top: 0; left: 0; height: 100%; width: 100%; 
-	min-width: 980px;
-	min-height: 545px;
-	/* IE Dynamic Expression to set the width */
-	width:expression(document.body.clientWidth < 980 ? "980px" : "100%" );
-	height:expression(document.body.clientHeight < 545 ? "545px" : "100%" );
+	position: absolute; 
+	top: 10px; 
+	left: 400px; 
+	height: 500px; 
+	width: 545px; 
 }
-/* end hide */
 
-body { height: 100%; margin: 0; padding: 0; background-color: #fff; }
-#flash_alternative{ padding: 75px; color: #000; font-family: Arial; font-size: 14px; }
+#flash_alternative, #flash_content{ 
+	padding: 75px; 
+	color: #000; 
+	font-family: Arial; 
+	font-size: 14px; 
+}
