@@ -32,6 +32,24 @@ package be.wellconsidered.social.facebook
 		private function handleJSCall(data:Array):void {
 			dispatchEvent(new FacebookBridgeEvent(FacebookBridgeEvent.RESULT, false, true, String(data[0]), data[1]));
 		}
+		
+		public function print_r(obj:*, level:int = 0, output:String = ""):* {
+		    var tabs:String = "";
+		    
+		    for(var i:int = 0; i < level; i++, tabs += "\t");
+		    
+		    for(var child:* in obj) {
+		        output += tabs +"["+ child +"] => "+ obj[child];
+		        
+		        var childOutput:String = FacebookBridge.getInstance().print_r(obj[child], level+1);
+		        
+		        if(childOutput != '') output += ' {\n'+ childOutput + tabs +'}';
+		        
+		        output += "\n";
+		    }
+		    
+		    return output;
+		 }	
 	}
 }
 

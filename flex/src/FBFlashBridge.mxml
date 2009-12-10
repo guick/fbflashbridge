@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" applicationComplete="setTimeout(init, 7000)" layout="absolute" width="542" height="496">
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" applicationComplete="setTimeout(init, 4000)" layout="absolute" width="542" height="496">
 	
 	<mx:Script>
 		<![CDATA[
@@ -17,8 +17,8 @@
 			
 			private function onFBResult(e:FacebookBridgeEvent):void {
 				tracer("Response of " + e.func);
-				
-				tracer(typeof(e.data) + " - " + pr(e.data));
+				tracer("Type of response is " + typeof(e.data));
+				tracer(FacebookBridge.getInstance().print_r(e.data));
 				
 				tracer("--------------------------------------------------------");
 			}
@@ -27,23 +27,7 @@
 				trace(value);
 				
 				txtTrace.text += value + "\n";
-			}
-			
-			private function pr(obj:*, level:int = 0, output:String = ""):* {
-			    var tabs:String = "";
-			    for(var i:int = 0; i < level; i++, tabs += "\t");
-			    
-			    for(var child:* in obj) {
-			        output += tabs +"["+ child +"] => "+ obj[child];
-			        
-			        var childOutput:String = pr(obj[child], level+1);
-			        if(childOutput != '') output += ' {\n'+ childOutput + tabs +'}';
-			        
-			        output += "\n";
-			    }
-			    
-			    return output;
-			 }		
+			}		
 			
 		]]>
 	</mx:Script>
