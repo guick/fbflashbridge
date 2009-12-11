@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project name="BuildRelease" default="compileFBBridge" basedir=".">
+	
+	<property file="./build/build.properties" />
+	
+	<property name="FLEX_HOME" value="/Applications/Adobe Flex Builder 3/sdks/3.2.0"/> 
+	<property name="SRC_DIR" value="../src"/> 
+	<property name="DEPLOY_DIR" value="../bin"/>
+	<property name="LIBS_DIR" value="../libs"/>
+	
+	<property name="mxmlc" value="${FLEX_HOME}/bin/mxmlc"/>
+	
+	<taskdef resource="flexTasks.tasks" classpath="${FLEX_HOME}/ant/lib/flexTasks.jar" />
+	
+	<target name="compileFBBridge" description="Compiles source into a SWF.">
+		<echo>Compiling SWF.</echo>
+		<exec executable="${mxmlc}" failonerror="true" spawn="false">
+			<arg line="-library-path '${LIBS_DIR}'" />
+			<arg line="-library-path '${FLEX_HOME}/frameworks/libs'" />
+			<arg line="-library-path '${FLEX_HOME}/frameworks/locale/en_US'" />
+				
+			<arg line="-source-path '${FLEX_HOME}/frameworks'" />
+			<arg line="-source-path '${SRC_DIR}'" />
+			
+			<arg line="-file-specs '${SRC_DIR}/FBFlashBridge.mxml'" />
+			<arg line="-output '${DEPLOY_DIR}/FBFlashBridge.swf'" />
+		</exec>
+		<echo>Success! Created FBFlashBridge.swf</echo> 
+	</target>
+
+</project>
