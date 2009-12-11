@@ -1,7 +1,15 @@
 /*
  * fbFlashBridge - Facebook Connect Flash Bridge
  * 
- * Copyright (c) 2009 Pieter Michels
+ * Open source under the GNU Lesser General Public License (http://www.opensource.org/licenses/lgpl-license.php)
+ * Copyright © 2009 Pieter Michels / wellconsidered
+ * 
+ * This library is free software; you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License 
+ * as published by the Free Software Foundation; either version 2.1 of the License, or (at your option) any later version.
+ * This library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty 
+ * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+ * You should have received a copy of the GNU Lesser General Public License along with this library; 
+ * if not, write to the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA 
  *
  * @author	Pieter Michels
  *
@@ -260,7 +268,7 @@ function FBFlashBridge(appName, appKey, appURL, flashObject) {
 		 */
 		function getGenericUsersInfo(uids, fields, callback) {
 			if(!fields)
-				fields = ["uid", "pic_square", "first_name", "last_name", "about_me", "sex", "name", "proxied_email"]; // Default array of props
+				fields = ["uid", "pic_square", "first_name", "last_name", "about_me", "sex", "name", "proxied_email", "birthday_date", "is_app_user"]; // Default array of props
 				
 			_api.users_getInfo(uids, fields, function(result, ex) {	
 				callback(result);
@@ -303,6 +311,7 @@ function FBFlashBridge(appName, appKey, appURL, flashObject) {
 	function sendNotification(to_ids, notification) {
 		trace("Send Notification to '" + to_ids + "': '" + notification + "'");
 		
+		//_api.callMethod("notifications_send", {to_ids: to_ids, notification: notification, type: "user_to_user"}, function() {
 		_api.notifications_send(to_ids, notification, function(result, ex) {
 			trace(_s.NOTIFICATION_SENT);
 			

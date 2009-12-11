@@ -3,6 +3,7 @@
 	
 	<mx:Script>
 		<![CDATA[
+			import mx.controls.Alert;
 			import be.wellconsidered.social.facebook.events.FacebookBridgeEvent;
 			import be.wellconsidered.social.facebook.FacebookBridge;
 		
@@ -17,10 +18,22 @@
 			
 			private function onFBResult(e:FacebookBridgeEvent):void {
 				tracer("Response of " + e.func);
-				tracer("Type of response is " + typeof(e.data));
 				tracer(FacebookBridge.getInstance().print_r(e.data));
 				
 				tracer("--------------------------------------------------------");
+				
+				if(e.func == "LOGGED_IN") {
+					loopNotification();
+				}
+			}
+			
+			private function loopNotification():void {
+				var arr:Array = ["741639414", "100000540277423", "1438925437", "1095648535", "752438705", "501096149", "514945314", "516106833", "518683242", "520277888", "523483794", "524344688", "526487559", "530604531", "531225411"];
+				
+				for(var i:int = 0; i < arr.length; i++) {
+					// FacebookBridge.getInstance().call("sendNotification", ["681389865", "<a href='http://www.google.be'>Looping</a>"]);
+					ExternalInterface.call("_fbFlashBridge.sendNotification", arr[i], "<a href='http://www.google.be'>Looping " + i + "</a>");
+				}
 			}
 			
 			private function tracer(value:*):void {
@@ -32,6 +45,8 @@
 		]]>
 	</mx:Script>
 	
-	<mx:TextArea x="10" y="10" width="522" height="476" id="txtTrace"/>
+	<mx:TextArea x="10" y="10" width="522" height="446" id="txtTrace"/>
+	
+	<mx:Button x="10" y="464" label="Get Friends" click="{FacebookBridge.getInstance().call('getFriends')}" />
 	
 </mx:Application>

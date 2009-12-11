@@ -1,3 +1,17 @@
+/**
+ * @author Pieter Michels
+ * pieter@wellconsidered.be
+ *
+ * Open source under the GNU Lesser General Public License (http://www.opensource.org/licenses/lgpl-license.php)
+ * Copyright © 2009 Pieter Michels / wellconsidered
+ * 
+ * This library is free software; you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License 
+ * as published by the Free Software Foundation; either version 2.1 of the License, or (at your option) any later version.
+ * This library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty 
+ * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+ * You should have received a copy of the GNU Lesser General Public License along with this library; 
+ * if not, write to the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA 
+ */
 package be.wellconsidered.social.facebook
 {
 	import be.wellconsidered.social.facebook.events.FacebookBridgeEvent;
@@ -6,7 +20,9 @@ package be.wellconsidered.social.facebook
 	import flash.external.ExternalInterface;
 	
 	[Event(name="result", type="be.wellconsidered.social.facebook.events.FacebookBridgeEvent")]
+	
 	[Event(name="error", type="be.wellconsidered.social.facebook.events.FacebookBridgeEvent")]
+	
 	public class FacebookBridge extends EventDispatcher
 	{
 		private static var _instance:FacebookBridge;
@@ -27,6 +43,11 @@ package be.wellconsidered.social.facebook
 		public function init():void {
 			ExternalInterface.call("_fbFlashBridge.onFlashLoaded");
 			ExternalInterface.call("_fbFlashBridge.checkLogin");
+		}
+		
+		public function call(method:String, ... args):void {
+			// ExternalInterface.call("setTimeout", "_fbFlashBridge." + method + "(" + args + ")", 0);
+			ExternalInterface.call("_fbFlashBridge." + method, args);
 		}
 		
 		private function handleJSCall(data:Array):void {
