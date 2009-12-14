@@ -1,0 +1,30 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"> 
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:fb="http://www.facebook.com/2008/fbml">
+	<head>
+		<title></title>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	</head>
+	<body>
+	
+		<script src="http://static.ak.connect.facebook.com/js/api_lib/v0.4/FeatureLoader.js.php" type="text/javascript"></script>
+		
+		<script type="text/javascript">  
+			FB_RequireFeatures(["XFBML"], function(){ 
+				FB.Facebook.init("ab00ea694dbb0fcf4f1b23131678cd4a", "http://fbflashbridge.wellconsidered.be/xd_receiver.htm"); 
+			}); 
+		</script> 
+	
+		<div style="background: #fff; border: 8px solid #3b5998;">
+			<fb:serverfbml> 
+				<script type="text/fbml"> 
+					<fb:fbml> 
+						<fb:request-form action="http://fbflashbridge.wellconsidered.be/" method="POST" invite="true" type="FBFlashBridge" content="I would like to invite you. Click on the 'Register' button below.<fb:req-choice url='/' label='Register' />"> 
+							<fb:multi-friend-selector showborder="false" bypass="cancel" rows="3" cols="6" actiontext="Invite your Facebook Friends" /> 
+						</fb:request-form> 
+					</fb:fbml> 
+				</script> 
+			</fb:serverfbml>
+		</div>
+		
+	</body>
+</html>

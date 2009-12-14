@@ -23,10 +23,12 @@
 				tracer("--------------------------------------------------------");
 				
 				if(e.func == "LOGGED_IN") {
-					loopNotification();
+					
+				} else if(e.func == "NOTIFICATION_SENT") {
+					tracer(e.data);
 				}
 			}
-			
+			/*
 			private function loopNotification():void {
 				var arr:Array = ["741639414", "100000540277423", "1438925437", "1095648535", "752438705", "501096149", "514945314", "516106833", "518683242", "520277888", "523483794", "524344688", "526487559", "530604531", "531225411"];
 				
@@ -35,7 +37,7 @@
 					ExternalInterface.call("_fbFlashBridge.sendNotification", arr[i], "<a href='http://www.google.be'>Looping " + i + "</a>");
 				}
 			}
-			
+			*/
 			private function tracer(value:*):void {
 				trace(value);
 				

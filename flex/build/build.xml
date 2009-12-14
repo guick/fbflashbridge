@@ -6,6 +6,7 @@
 	<property name="FLEX_HOME" value="/Applications/Adobe Flex Builder 3/sdks/3.2.0"/> 
 	<property name="SRC_DIR" value="../src"/> 
 	<property name="DEPLOY_DIR" value="../bin"/>
+	<property name="DEPLOY_DIR_EXTERN" value="../../www/assets/swf"/>
 	<property name="LIBS_DIR" value="../libs"/>
 	
 	<property name="mxmlc" value="${FLEX_HOME}/bin/mxmlc"/>
@@ -23,7 +24,7 @@
 			<arg line="-source-path '${SRC_DIR}'" />
 			
 			<arg line="-file-specs '${SRC_DIR}/FBFlashBridge.mxml'" />
-			<arg line="-output '${DEPLOY_DIR}/FBFlashBridge.swf'" />
+			<arg line="-output '${DEPLOY_DIR_EXTERN}/FBFlashBridge.swf'" />
 		</exec>
 		<echo>Success! Created FBFlashBridge.swf</echo> 
 	</target>

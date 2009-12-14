@@ -161,7 +161,8 @@ function FBFlashBridge(appName, appKey, appURL, flashObject) {
 	//*********************************************************//
 	
 	/**
-	 * Ask for permissions
+	 * Ask for permissions.
+	 * http://wiki.developers.facebook.com/index.php/Extended_permissions
 	 *
 	 * @param	{String}	permissions	The permission you want to ask, can be more than one (comma separated)
 	 *
@@ -220,6 +221,28 @@ function FBFlashBridge(appName, appKey, appURL, flashObject) {
 			dispatchEvent(_s.FRIENDS_GET, result);
 		});		
 	}
+	
+	/**
+	 * Invite friends
+	 *
+	 * @public
+	 */
+	/*
+	function inviteFriends() {
+		trace("Invite friends");
+
+        var iframe = new IFrame();
+        
+		iframe.style.width = "640px"; iframe.style.height = "550px";
+		iframe.style.position = "fixed";
+		iframe.style.marginLeft = "-320px"; iframe.style.marginTop = "-275px";
+		iframe.style.left = "50%"; iframe.style.top = "50%";
+		iframe.style.padding = "0px";
+		iframe.style.border = "0px";
+
+		iframe.src = "assets/js/FBFlashBridgeInvite-0.1.html";
+	}
+	*/
 	
 	/**
 	 * Get info of array of users (can contain 1 element)
@@ -290,13 +313,13 @@ function FBFlashBridge(appName, appKey, appURL, flashObject) {
 	function sendEmail(recipients, subject, text, fbml) {
 		trace("Send Email to '" + recipients + "': '" + subject + "', '" + text + "', '" + fbml + "'");
 		
-		_api.notifications_send(recipients, subject, text, fbml, function(result, ex) {
+		_api.notifications_sendEmail(recipients, subject, text, fbml, function(result, ex) {
 			trace(_s.EMAIL_SENT);
 			
 			trace(result);
 			inspect(result);
 			
-			dispatchEvent(_s.EMAIL_SENT, true);
+			dispatchEvent(_s.EMAIL_SENT, result);
 		}); 
 	}
 	
@@ -311,14 +334,14 @@ function FBFlashBridge(appName, appKey, appURL, flashObject) {
 	function sendNotification(to_ids, notification) {
 		trace("Send Notification to '" + to_ids + "': '" + notification + "'");
 		
-		//_api.callMethod("notifications_send", {to_ids: to_ids, notification: notification, type: "user_to_user"}, function() {
+		// type: "user_to_user"
 		_api.notifications_send(to_ids, notification, function(result, ex) {
 			trace(_s.NOTIFICATION_SENT);
 			
 			trace(result);
 			inspect(result);
 			
-			dispatchEvent(_s.NOTIFICATION_SENT, true);
+			dispatchEvent(_s.NOTIFICATION_SENT, result);
 		}); 
 	}
 	
@@ -597,6 +620,7 @@ function FBFlashBridge(appName, appKey, appURL, flashObject) {
 	this.askPermissions = askPermissions;
 	this.getAppUsers = getAppUsers;
 	this.getFriends = getFriends;
+	this.inviteFriends = inviteFriends;
 	this.getUsersInfo = getUsersInfo;
 	this.getUserInfo = getUserInfo;
 	
@@ -630,4 +654,47 @@ function trace(msg) {
 function inspect(obj) {
 	if(console)	
 		console.dir(obj);
+}
+
+//***********************************************************************************************************//
+
+function IFrame(parentElement)
+{
+   // Create the iframe which will be returned
+   var iframe = document.createElement("iframe");
+
+   // If no parent element is specified then use body as the parent element
+   if(parentElement == null)
+      parentElement = document.body;
+
+   // This is necessary in order to initialize the document inside the iframe
+   parentElement.appendChild(iframe);
+
+   // Initiate the iframe's document to null
+   iframe.doc = null;
+
+   // Depending on browser platform get the iframe's document, this is only
+   // available if the iframe has already been appended to an element which
+   // has been added to the document
+   if(iframe.contentDocument)
+      // Firefox, Opera
+      iframe.doc = iframe.contentDocument;
+   else if(iframe.contentWindow)
+      // Internet Explorer
+      iframe.doc = iframe.contentWindow.document;
+   else if(iframe.document)
+      // Others?
+      iframe.doc = iframe.document;
+
+   // If we did not succeed in finding the document then throw an exception
+   if(iframe.doc == null)
+      throw "Document not found, append the parent element to the DOM before creating the IFrame";
+
+   // Create the script inside the iframe's document which will call the
+   iframe.doc.open();
+   iframe.doc.close();
+
+   // Return the iframe, now with an extra property iframe.doc containing the
+   // iframe's document
+   return iframe;
 }
