@@ -620,7 +620,7 @@ function FBFlashBridge(appName, appKey, appURL, flashObject) {
 	this.askPermissions = askPermissions;
 	this.getAppUsers = getAppUsers;
 	this.getFriends = getFriends;
-	this.inviteFriends = inviteFriends;
+	// this.inviteFriends = inviteFriends;
 	this.getUsersInfo = getUsersInfo;
 	this.getUserInfo = getUserInfo;
 	
