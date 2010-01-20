@@ -24,20 +24,9 @@
 				
 				if(e.func == "LOGGED_IN") {
 					
-				} else if(e.func == "NOTIFICATION_SENT") {
-					tracer(e.data);
 				}
 			}
-			/*
-			private function loopNotification():void {
-				var arr:Array = ["741639414", "100000540277423", "1438925437", "1095648535", "752438705", "501096149", "514945314", "516106833", "518683242", "520277888", "523483794", "524344688", "526487559", "530604531", "531225411"];
-				
-				for(var i:int = 0; i < arr.length; i++) {
-					// FacebookBridge.getInstance().call("sendNotification", ["681389865", "<a href='http://www.google.be'>Looping</a>"]);
-					ExternalInterface.call("_fbFlashBridge.sendNotification", arr[i], "<a href='http://www.google.be'>Looping " + i + "</a>");
-				}
-			}
-			*/
+		
 			private function tracer(value:*):void {
 				trace(value);
 				
@@ -50,5 +39,6 @@
 	<mx:TextArea x="10" y="10" width="522" height="446" id="txtTrace"/>
 	
 	<mx:Button x="10" y="464" label="Get Friends" click="{FacebookBridge.getInstance().call('getFriends')}" />
+	<mx:Button x="109" y="464" label="Post on Stream" click="{FacebookBridge.getInstance().call('publish', 'user_message', {}, null, null, 'wat wil je zeggen?')}" />
 	
 </mx:Application>

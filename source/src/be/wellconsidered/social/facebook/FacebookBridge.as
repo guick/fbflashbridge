@@ -46,8 +46,9 @@ package be.wellconsidered.social.facebook
 		}
 		
 		public function call(method:String, ... args):void {
-			// ExternalInterface.call("setTimeout", "_fbFlashBridge." + method + "(" + args + ")", 0);
-			ExternalInterface.call("_fbFlashBridge." + method, args);
+			// ExternalInterface.call("_fbFlashBridge." + method, args);
+		
+			(ExternalInterface.call as Function).apply(this, ["_fbFlashBridge." + method].concat(args));
 		}
 		
 		private function handleJSCall(data:Array):void {
